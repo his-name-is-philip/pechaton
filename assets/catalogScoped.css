@@ -1,0 +1,166 @@
+/* Scoped styles for #test-catalog block in resources.html */
+/* Only conflicting selectors are scoped to avoid affecting other parts of the site */
+
+/* CSS Variables */
+#test-catalog {
+    --bs-border-color-translucent: rgba(0, 0, 0, 0.175);
+}
+
+/* Grid system */
+#test-catalog .row {
+    --bs-gutter-x: 1.5rem;
+    --bs-gutter-y: 0;
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: calc(-1 * var(--bs-gutter-y));
+    margin-right: calc(-0.5 * var(--bs-gutter-x));
+    margin-left: calc(-0.5 * var(--bs-gutter-x));
+}
+
+#test-catalog .row>* {
+    flex-shrink: 0;
+    width: 100%;
+    max-width: 100%;
+    padding-right: calc(var(--bs-gutter-x) * 0.5);
+    padding-left: calc(var(--bs-gutter-x) * 0.5);
+    margin-top: var(--bs-gutter-y);
+}
+
+#test-catalog .col {
+    flex: 1 0 0%;
+}
+
+#test-catalog .row-cols-2>* {
+    flex: 0 0 auto;
+    width: 50%;
+}
+
+@media (min-width: 768px) {
+    #test-catalog .row-cols-md-3>* {
+        flex: 0 0 auto;
+        width: 33.3333333333%;
+    }
+}
+
+@media (min-width: 1200px) {
+    #test-catalog .row-cols-xl-4>* {
+        flex: 0 0 auto;
+        width: 25%;
+    }
+}
+
+/* Gutter utilities */
+#test-catalog .gx-4 {
+    --bs-gutter-x: 1.5rem;
+}
+
+@media (min-width: 992px) {
+    #test-catalog .gx-lg-5 {
+        --bs-gutter-x: 3rem;
+    }
+}
+
+/* Spacing utilities */
+#test-catalog .mb-5 {
+    margin-bottom: 3rem !important;
+}
+
+#test-catalog .mb-2 {
+    margin-bottom: 0.5rem !important;
+}
+
+#test-catalog .p-4 {
+    padding: 1.5rem !important;
+}
+
+#test-catalog .pt-0 {
+    padding-top: 0 !important;
+}
+
+/* Height utilities */
+#test-catalog .h-100 {
+    height: 100% !important;
+}
+
+/* Display utilities */
+#test-catalog .d-flex {
+    display: flex !important;
+}
+
+/* Justify content */
+#test-catalog .justify-content-center {
+    justify-content: center !important;
+}
+
+/* Text utilities */
+#test-catalog .text-center {
+    text-align: center !important;
+}
+
+#test-catalog .text-muted {
+    color: #6c757d !important;
+}
+
+#test-catalog .text-warning {
+    color: #ffc107 !important;
+}
+
+#test-catalog .text-decoration-line-through {
+    text-decoration: line-through !important;
+}
+
+#test-catalog .fw-bolder {
+    font-weight: bolder !important;
+}
+
+/* Background utilities */
+#test-catalog .bg-transparent {
+    background-color: transparent !important;
+}
+
+/* Border utilities */
+#test-catalog .border-top-0 {
+    border-top: 0 !important;
+}
+
+/* Card component */
+#test-catalog .card {
+    --bs-card-spacer-y: 1rem;
+    --bs-card-spacer-x: 1rem;
+    --bs-card-title-spacer-y: 0.5rem;
+    --bs-card-border-width: 1px;
+    --bs-card-border-color: var(--bs-border-color-translucent);
+    --bs-card-box-shadow: ;
+    --bs-card-cap-padding-y: 0.5rem;
+    --bs-card-cap-padding-x: 1rem;
+    --bs-card-bg: #fff;
+    --bs-card-img-overlay-padding: 1rem;
+    --bs-card-group-margin: 0.75rem;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    height: var(--bs-card-height);
+    word-wrap: break-word;
+    background-color: var(--bs-card-bg);
+    background-clip: border-box;
+    border: var(--bs-card-border-width) solid var(--bs-card-border-color);
+}
+
+#test-catalog .card-body {
+    flex: 1 1 auto;
+    padding: var(--bs-card-spacer-y) var(--bs-card-spacer-x);
+    color: var(--bs-card-color);
+}
+
+#test-catalog .card-footer {
+    padding: var(--bs-card-cap-padding-y) var(--bs-card-cap-padding-x);
+    border-top: var(--bs-card-border-width) solid var(--bs-card-border-color);
+}
+
+#test-catalog .card-img,
+#test-catalog .card-img-top,
+#test-catalog .card-img-bottom {
+    width: 100%;
+}
+

@@ -1,0 +1,36 @@
+{
+  "compilerOptions": {
+    "target": "ES2019",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": ["DOM", "ES2019"],
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "strictPropertyInitialization": true,
+    "noImplicitThis": true,
+    "alwaysStrict": true,
+    "exactOptionalPropertyTypes": true,
+    "noEmitOnError": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "outDir": "dist",
+    "paths": {
+      "@/*": ["./*"]
+    }
+  },
+  "include": [
+    "index.ts",
+    "assets/**/*.d.ts",
+    "assets/**/*.ts",
+    "adapters/**/*.ts",
+    "services/**/*.ts",
+    "ui/**/*.ts",
+    "entities/**/*.ts"
+, "legacy/mybarba-beta.ts", "legacy/mybarba copy.ts", "legacy/cssHelper.ts"  ],
+  "exclude": ["node_modules", "dist"]
+}
+

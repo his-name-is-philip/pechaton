@@ -1,0 +1,65 @@
+[
+    {
+        "id": "1",
+        "name": "товар1",
+        "price": "500",
+        "unit": "https://drive.google.com/uc?export=download&id=1L7QbVjj0WfpCNdu9vG6B9LCDTlqnXRfA",
+        "preview": "https://drive.google.com/uc?export=download&id=1JLHvbBTQEGU1_alaYzU-_IvLoeVxgjEz",
+        "illustration": "https://drive.google.com/uc?export=download&id=1dw4sJtpQpuUM60obHm3EzEpsTu7U44U4",
+        "description": "description1"
+    },
+    {
+        "id": "2",
+        "name": "товар2",
+        "price": "600",
+        "unit": "https://drive.google.com/uc?export=download&id=1fhr-HszJwf7QLTt28tALl9tYIMTZD46h",
+        "preview": "https://drive.google.com/uc?export=download&id=1DggOqMRHpKDQEghK4kUqZaYYSpZJmbjm",
+        "illustration": "https://drive.google.com/uc?export=download&id=1JbURj6i8a_JwROdYvhstXTvC3bmAlBf0",
+        "description": "описание2"
+    },
+    {
+        "id": "6",
+        "name": "товар3",
+        "price": "500",
+        "unit": "https://drive.google.com/uc?export=download&id=1e_R5AM1sXUszr_hVTfjo8eM45sT0fze2",
+        "preview": "https://drive.google.com/uc?export=download&id=1wjl-sX-sUg6BUe2Euw63GiExTjt16TBc",
+        "illustration": "https://drive.google.com/uc?export=download&id=18XUq7luaBZ34JkOPRQkpjnMHI6ASZxs2",
+        "description": "описание3"
+    },
+    {
+        "id": "4",
+        "name": "товар4",
+        "price": "500",
+        "unit": "https://drive.google.com/uc?export=download&id=1QWvWoKhDN-UejFREJbZTiMS2Y9Cg93j5",
+        "preview": "https://drive.google.com/uc?export=download&id=1o57XbW0ZOfEmNinn5KcQr41vnA8NTv0g",
+        "illustration": "https://drive.google.com/file/d/1rPTnjyWlb-xIlTIt2jDFBDYouTPlHYXo/view?usp=drive_link",
+        "description": "описание4"
+    },
+    {
+        "id": "3",
+        "name": "Негорючая рукопись",
+        "price": "10000.001",
+        "unit": "https://drive.google.com/uc?export=download&id=1BRhN3vLTpVz3PoDyCuQREXlys2fVDIV1",
+        "preview": "https://drive.google.com/uc?export=download&id=14DvdqIwDaQrl33e-RcPL7gt22lezefZl",
+        "illustration": "https://drive.google.com/uc?export=download&id=1RXEoUc_PQWW75doso_A13SRi3SSysp0t",
+        "description": "Есть многое на свете, друг Горацио, что запретят в Российской Федерации"
+    },
+    {
+        "id": "5",
+        "name": "Записка сумасшедшего",
+        "price": "999",
+        "unit": "https://drive.google.com/uc?export=download&id=1R8IYIHSPuhn67Uq1yplWcn8Izp_xLn_u",
+        "preview": "https://drive.google.com/uc?export=download&id=1HDGWORFHejT22yKIj5PTfAT-3m0KEn_N",
+        "illustration": "https://drive.google.com/uc?export=download&id=130t5GxyQXYvYTrWQDJPC9eRMTUABO2D8",
+        "description": "супер супер текст"
+    },
+    {
+        "id": "7",
+        "name": "скрижаль",
+        "price": "0",
+        "unit": "https://drive.google.com/uc?export=download&id=1kodmzduBaC05Dj6sbPAzUzg5Yh4JDtm2",
+        "preview": "https://drive.google.com/uc?export=download&id=1w4ZZ6FGH3jq0utJSViBILQih7SpdPTXl",
+        "illustration": "https://drive.google.com/uc?export=download&id=1WwU98teSfoyx52aHXSJRqP4NxhZZbohp",
+        "description": "во имя матери,\nдочери\nи святой души"
+    }
+]
