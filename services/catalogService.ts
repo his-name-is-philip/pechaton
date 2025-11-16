@@ -3,7 +3,7 @@ import { Worksheet, parseRawWorksheet } from '../entities/worksheet';
 import { appendProductCardTo } from '../ui/productCard';
 import { rebindPage } from '../adapters/barbaAdapter';
 
-const CATALOG_URL = '/assets/goods.json';
+const CATALOG_URL = 'assets/goods.json';
 
 export class CatalogService {
     private cache: Map<number, Worksheet> | null = null;
