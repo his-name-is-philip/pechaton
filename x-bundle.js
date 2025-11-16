@@ -8262,7 +8262,7 @@ function rebindPage(container) {
 }
 
 // services/catalogService.ts
-var CATALOG_URL = "/assets/goods.json";
+var CATALOG_URL = "assets/goods.json";
 var CatalogService = class {
   constructor() {
     this.cache = null;
