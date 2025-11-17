@@ -9,6 +9,9 @@ import { registerCatalogRenderer  } from './assets/mybarba';
 import cartController from './services/cartController';
 import { openCartModal, closeCartModal } from './ui/cartView';
 
+const ONCE_ANIMATE_CLASS = '-onceAnimate';
+const LOADER_CLEANUP_TIMEOUT = 6_000;
+
 /**
  * Show the header briefly and auto-hide after a short period.
  *
@@ -93,8 +96,8 @@ function init(): void {
         console.warn('registerCatalogRenderer failed', err);
     }
 
-    // Remove initial loader and prepare page
-    releaseInitialLoader();
+    // Remove initial loader once the loader animation runs (or fall back after a timeout)
+    scheduleLoaderCleanup();
 
     // Mount persistent UI components that should survive page transitions.
     // Cart overlay is controlled via hash routing and direct API calls.
@@ -176,6 +179,49 @@ function releaseInitialLoader(): void {
         }
     }
     (document.body as HTMLBodyElement).style.overflow = '';
+}
+
+/**
+ * This is for preventing index.ts from being loaded before the loader animation runs.
+ * Schedule the cleanup of the initial loader once the loader animation runs (or fall back after a timeout)
+ */
+function scheduleLoaderCleanup(): void {
+    const body = document.body;
+    if (!body) {
+        releaseInitialLoader();
+        return;
+    }
+
+    let cleaned = false;
+    let observer: MutationObserver | null = null;
+    let fallbackId: number | null = null;
+
+    const cleanup = () => {
+        if (cleaned) {
+            return;
+        }
+        cleaned = true;
+        if (observer) {
+            observer.disconnect();
+        }
+        if (fallbackId !== null) {
+            window.clearTimeout(fallbackId);
+        }
+        releaseInitialLoader();
+    };
+
+    if (body.classList.contains(ONCE_ANIMATE_CLASS)) {
+        cleanup();
+        return;
+    }
+
+    observer = new MutationObserver(() => {
+        if (body.classList.contains(ONCE_ANIMATE_CLASS)) {
+            cleanup();
+        }
+    });
+    observer.observe(body, { attributes: true, attributeFilter: ['class'] });
+    fallbackId = window.setTimeout(cleanup, LOADER_CLEANUP_TIMEOUT);
 }
 
 /* Auto init on DOMContentLoaded */

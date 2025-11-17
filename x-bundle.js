@@ -8449,6 +8449,8 @@ function registerCatalogRenderer() {
 }
 
 // index.ts
+var ONCE_ANIMATE_CLASS = "-onceAnimate";
+var LOADER_CLEANUP_TIMEOUT = 6e3;
 function dropHeaderFor2s() {
   const headerElement = document.querySelector('[data-module-header="header"]') || document.querySelector("header");
   if (!headerElement) {
@@ -8497,7 +8499,7 @@ function init() {
   } catch (err) {
     console.warn("registerCatalogRenderer failed", err);
   }
-  releaseInitialLoader();
+  scheduleLoaderCleanup();
   const catalogGrid = document.getElementById("catalog-grid");
   if (catalogGrid) {
   } else {
@@ -8541,6 +8543,40 @@ function releaseInitialLoader() {
     }
   }
   document.body.style.overflow = "";
+}
+function scheduleLoaderCleanup() {
+  const body = document.body;
+  if (!body) {
+    releaseInitialLoader();
+    return;
+  }
+  let cleaned = false;
+  let observer = null;
+  let fallbackId = null;
+  const cleanup = () => {
+    if (cleaned) {
+      return;
+    }
+    cleaned = true;
+    if (observer) {
+      observer.disconnect();
+    }
+    if (fallbackId !== null) {
+      window.clearTimeout(fallbackId);
+    }
+    releaseInitialLoader();
+  };
+  if (body.classList.contains(ONCE_ANIMATE_CLASS)) {
+    cleanup();
+    return;
+  }
+  observer = new MutationObserver(() => {
+    if (body.classList.contains(ONCE_ANIMATE_CLASS)) {
+      cleanup();
+    }
+  });
+  observer.observe(body, { attributes: true, attributeFilter: ["class"] });
+  fallbackId = window.setTimeout(cleanup, LOADER_CLEANUP_TIMEOUT);
 }
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", init);

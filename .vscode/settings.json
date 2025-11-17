@@ -4,13 +4,14 @@
         "package-lock.json": true,
         "package.json": true,
         "vite.config.ts": true,
-        // "media/": true,
+        "media/": true,
         "assets/favicon/": true,
         "assets/images/": true,
-        // "x-bundle.js": true,
+        "x-bundle.js": true,
         "tsconfig.json": true,
         "node_modules/": true,
         "assets/barba-shim.d.ts": true,
         "assets/anime-shim.d.ts": true
+        "legacy/": true,
     }
 }
