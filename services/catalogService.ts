@@ -50,6 +50,7 @@ export class CatalogService {
      *
      * @param id - numeric worksheet id
      * @returns Promise resolving to Worksheet or null if not found
+     * todo get rid of getAll() call here
      */
     async getById(id: number): Promise<Worksheet | null> {
         if (this.cache && this.cache.has(id)) return this.cache.get(id) ?? null;

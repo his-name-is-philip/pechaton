@@ -7907,8 +7907,12 @@ var cartController_default = cartController;
 
 // ui/productCard.ts
 function createProductCard(ws2) {
-  const outer = document.createElement("div");
+  const productLink = `./product?id=${ws2.id}`;
+  const outer = document.createElement("a");
   outer.className = "col mb-5";
+  outer.href = productLink;
+  outer.setAttribute("aria-label", `\u041F\u0435\u0440\u0435\u0439\u0442\u0438 \u043A \u0442\u043E\u0432\u0430\u0440\u0443 ${ws2.name}`);
+  outer.dataset.barbaTrigger = "catalog-card";
   const card = document.createElement("div");
   card.className = "card h-100 | -radius";
   card.setAttribute("data-id", String(ws2.id));
@@ -7934,7 +7938,8 @@ function createProductCard(ws2) {
   footer.className = "card-footer p-4 pt-0 border-top-0 bg-transparent";
   const footerInner = document.createElement("div");
   footerInner.className = "text-center";
-  const btn = document.createElement("a");
+  const btn = document.createElement("button");
+  btn.type = "button";
   btn.className = "a-social | a-button -secondary js-add-to-cart";
   btn.setAttribute("role", "button");
   btn.setAttribute("data-id", String(ws2.id));
@@ -7955,6 +7960,7 @@ function createProductCard(ws2) {
   }
   btn.addEventListener("click", async (ev) => {
     ev.preventDefault();
+    ev.stopPropagation();
     if (btnHasAddedState(btn)) {
       flashElement(btn);
       return;
@@ -8308,6 +8314,7 @@ var CatalogService = class {
    *
    * @param id - numeric worksheet id
    * @returns Promise resolving to Worksheet or null if not found
+   * todo get rid of getAll() call here
    */
   async getById(id) {
     if (this.cache && this.cache.has(id))
@@ -8383,11 +8390,140 @@ var CatalogService = class {
 var catalogService = new CatalogService();
 var catalogService_default = catalogService;
 
+// ui/productPage.ts
+function parseIdFromLocation() {
+  const params = new URLSearchParams(window.location.search);
+  const raw = params.get("id");
+  if (!raw)
+    return null;
+  const n2 = Number(raw);
+  if (!Number.isFinite(n2) || !Number.isInteger(n2) || n2 <= 0)
+    return null;
+  return n2;
+}
+async function initProductPage(container) {
+  const id = parseIdFromLocation();
+  if (!id) {
+    console.error("productPage: missing or invalid id in URL");
+    showNotFound(container);
+    return;
+  }
+  let worksheet = null;
+  worksheet = await catalogService_default.getById(id) ?? null;
+  if (!worksheet) {
+    showNotFound(container);
+    return;
+  }
+  try {
+    document.title = `${worksheet.name} \u2014 \u041F\u0435\u0447\u0430\u0442\u043E\u043D`;
+  } catch (e) {
+    console.warn("productPage: error setting document title", e);
+  }
+  const titleEl = container.querySelector("[data-title=title]") || container.querySelector(".a-title");
+  if (titleEl)
+    titleEl.textContent = worksheet.name;
+  const bigH1 = container.querySelector("h1.a-title");
+  if (bigH1)
+    bigH1.textContent = worksheet.name;
+  const idBubble = container.querySelector(".m-adDetail__circle");
+  if (idBubble)
+    idBubble.textContent = String(worksheet.id);
+  const priceElById = container.querySelector("#product-price");
+  if (priceElById) {
+    priceElById.textContent = formatPrice(worksheet.priceKopecks);
+  } else {
+    const mDetails = Array.from(container.querySelectorAll(".t-adsItem__details .m-adDetail, .m-adDetail"));
+    if (mDetails.length >= 3) {
+      const el2 = mDetails[2].querySelector(".tx-s");
+      if (el2)
+        el2.textContent = formatPrice(worksheet.priceKopecks);
+    } else {
+      const anyPrice = container.querySelector(".m-adDetail .tx-s, .a-price, .product-price");
+      if (anyPrice)
+        anyPrice.textContent = formatPrice(worksheet.priceKopecks);
+    }
+  }
+  const descById = container.querySelector("#product-description");
+  if (descById) {
+    descById.textContent = worksheet.description;
+  } else {
+    const descEl = container.querySelector(".t-adsItem__description, .m-contentPublic, .m-contentPublic__ahead");
+    if (descEl) {
+      descEl.textContent = worksheet.description;
+    }
+  }
+  const img = container.querySelector("#product-preview");
+  if (img) {
+    img.src = worksheet.previewUrl;
+    img.alt = worksheet.name;
+  } else {
+    const contactBlock = container.querySelector(".t-adsItem__contact");
+    if (contactBlock) {
+      const fig = document.createElement("figure");
+      fig.className = "a-image t-adsItem__contactCover -product-preview";
+      const newImg = document.createElement("img");
+      newImg.id = "product-preview";
+      newImg.className = "a-image__image js-image-image -landscape";
+      newImg.alt = worksheet.name;
+      newImg.src = worksheet.previewUrl;
+      fig.appendChild(newImg);
+      contactBlock.parentNode?.replaceChild(fig, contactBlock);
+    }
+  }
+  const backBtn = document.querySelector(".js-back-to-resources") || container.querySelector("[data-back-button]") || // try to find button with exact text 'Материалы'
+  Array.from(document.querySelectorAll("button, a")).find((el2) => el2.textContent?.trim() === "\u041C\u0430\u0442\u0435\u0440\u0438\u0430\u043B\u044B");
+  if (backBtn) {
+    backBtn.addEventListener("click", (ev) => {
+      ev.preventDefault();
+      if (window.history.length > 1) {
+        history.back();
+      } else {
+        window.location.href = "./resources.html";
+      }
+    });
+  }
+  const addBtn = container.querySelector(".js-add-to-cart");
+  if (addBtn) {
+    addBtn.addEventListener("click", async (ev) => {
+      ev.preventDefault();
+      try {
+        const added = cartController_default.addFromWorksheet(worksheet);
+        if (added) {
+          addBtn.textContent = "\u0414\u043E\u0431\u0430\u0432\u043B\u0435\u043D\u043E";
+          addBtn.classList.remove("-secondary");
+          addBtn.classList.add("-tertiary");
+          addBtn.setAttribute("aria-disabled", "true");
+        } else {
+          try {
+            addBtn.animate([{ transform: "scale(1)" }, { transform: "scale(1.04)" }, { transform: "scale(1)" }], { duration: 200 });
+          } catch {
+          }
+        }
+      } catch (err) {
+        console.error("productPage: add to cart failed", err);
+        alert("\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u0434\u043E\u0431\u0430\u0432\u0438\u0442\u044C \u0442\u043E\u0432\u0430\u0440 \u0432 \u043A\u043E\u0440\u0437\u0438\u043D\u0443");
+      }
+    });
+  }
+}
+function showNotFound(container) {
+  const root = container ?? document;
+  const holder = document.createElement("div");
+  holder.className = "product-not-found";
+  holder.innerHTML = "<p>\u0422\u043E\u0432\u0430\u0440 \u043D\u0435 \u043D\u0430\u0439\u0434\u0435\u043D. \u0412\u0435\u0440\u043D\u0438\u0442\u0435\u0441\u044C \u043D\u0430\u0437\u0430\u0434.</p>";
+  root.appendChild(holder);
+  setTimeout(() => {
+    if (window.history.length > 1)
+      history.back();
+    else
+      window.location.href = "./resources.html";
+  }, 2500);
+}
+
 // assets/mybarba.ts
-var CATALOG_SELECTOR = '[data-barba-namespace="catalog"]';
 function registerCatalogRenderer() {
   const handled = /* @__PURE__ */ new WeakSet();
-  function handleFound(el2) {
+  function handleCatalogFound(el2) {
     if (handled.has(el2))
       return;
     handled.add(el2);
@@ -8401,11 +8537,14 @@ function registerCatalogRenderer() {
       }
     })();
   }
-  function scanExisting() {
+  async function scanExisting() {
     console.log("mybarba: scanExisting");
-    const el2 = document.querySelector(CATALOG_SELECTOR);
-    if (el2)
-      handleFound(el2);
+    const catalogEl = document.querySelector('[data-barba-namespace="catalog"]' /* CATALOG */);
+    if (catalogEl)
+      handleCatalogFound(catalogEl);
+    const productEl = document.querySelector('[data-barba-namespace="product-item"]' /* PRODUCT */);
+    if (productEl)
+      initProductPage(productEl);
   }
   if (document.readyState === "loading") {
     document.addEventListener(
@@ -8425,13 +8564,13 @@ function registerCatalogRenderer() {
         if (node.nodeType !== Node.ELEMENT_NODE)
           continue;
         const el2 = node;
-        if (el2.matches(CATALOG_SELECTOR)) {
-          handleFound(el2);
+        if (el2.matches('[data-barba-namespace="catalog"]' /* CATALOG */)) {
+          handleCatalogFound(el2);
+          continue;
+        } else if (el2.matches('[data-barba-namespace="product-item"]' /* PRODUCT */)) {
+          initProductPage(el2);
           continue;
         }
-        const inner = el2.querySelector(CATALOG_SELECTOR);
-        if (inner)
-          handleFound(inner);
       }
     }
   });

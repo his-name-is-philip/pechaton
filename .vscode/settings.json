@@ -11,7 +11,7 @@
         "tsconfig.json": true,
         "node_modules/": true,
         "assets/barba-shim.d.ts": true,
-        "assets/anime-shim.d.ts": true
-        "legacy/": true,
+        "assets/anime-shim.d.ts": true,
+        // "legacy/": true,
     }
 }

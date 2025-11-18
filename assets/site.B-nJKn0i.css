@@ -3212,21 +3212,21 @@ body.-dark .o-header__logoMobile .a-svg {
     background-position-y: 0;
     background-size: 38px;
     animation: logo 1s infinite steps(7)
-} */
+}  */
 
 
 /* HTML: <div class="loader"></div> */
 .o-loader__letters {
     --w: 11ch;
     font-weight: bold;
-    font-family: "Hachi Maru Pop", bold;
+    font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
     font-size: 5rem;
     letter-spacing: var(--w);
     width: var(--w);
     overflow: hidden;
     white-space: nowrap;
     color: var(--color-cream);
-    animation: l40 2.3s infinite;
+    animation: l40 1.2s infinite;
     font-optical-sizing: auto;
 }
 
@@ -3244,49 +3244,49 @@ body.-dark .o-header__logoMobile .a-svg {
             calc(-5*var(--w)) 0 currentColor, calc(-6*var(--w)) 0 currentColor, calc(-7*var(--w)) 0 currentColor, calc(-8*var(--w)) 0 currentColor, calc(-9*var(--w)) 0 currentColor;
     }
 
-    9% {
+    9.5% {
         text-shadow:
             calc(0*var(--w)) 0 currentColor, calc(-1*var(--w)) 0 currentColor, calc(-2*var(--w)) -20px transparent, calc(-3*var(--w)) 0 currentColor, calc(-4*var(--w)) 0 currentColor,
             calc(-5*var(--w)) 0 currentColor, calc(-6*var(--w)) 0 currentColor, calc(-7*var(--w)) 0 currentColor, calc(-8*var(--w)) 0 currentColor, calc(-9*var(--w)) 0 currentColor;
     }
 
-    18% {
+    19% {
         text-shadow:
             calc(0*var(--w)) 0 currentColor, calc(-1*var(--w)) 0 currentColor, calc(-2*var(--w)) -20px transparent, calc(-3*var(--w)) 0 currentColor, calc(-4*var(--w)) 0 currentColor,
             calc(-5*var(--w)) 0 currentColor, calc(-6*var(--w)) -20px transparent, calc(-7*var(--w)) 0 currentColor, calc(-8*var(--w)) 0 currentColor, calc(-9*var(--w)) 0 currentColor;
     }
 
-    27% {
+    28.5% {
         text-shadow:
             calc(0*var(--w)) -20px transparent, calc(-1*var(--w)) 0 currentColor, calc(-2*var(--w)) -20px transparent, calc(-3*var(--w)) 0 currentColor, calc(-4*var(--w)) 0 currentColor,
             calc(-5*var(--w)) 0 currentColor, calc(-6*var(--w)) -20px transparent, calc(-7*var(--w)) 0 currentColor, calc(-8*var(--w)) 0 currentColor, calc(-9*var(--w)) 0 currentColor;
     }
 
-    36% {
+    38% {
         text-shadow:
             calc(0*var(--w)) -20px transparent, calc(-1*var(--w)) 0 currentColor, calc(-2*var(--w)) -20px transparent, calc(-3*var(--w)) 0 currentColor, calc(-4*var(--w)) 0 currentColor,
             calc(-5*var(--w)) -20px transparent, calc(-6*var(--w)) -20px transparent, calc(-7*var(--w)) 0 currentColor, calc(-8*var(--w)) 0 currentColor, calc(-9*var(--w)) 0 currentColor;
     }
 
-    45% {
+    47.5% {
         text-shadow:
             calc(0*var(--w)) -20px transparent, calc(-1*var(--w)) 0 currentColor, calc(-2*var(--w)) -20px transparent, calc(-3*var(--w)) 0 currentColor, calc(-4*var(--w)) 0 currentColor,
             calc(-5*var(--w)) -20px transparent, calc(-6*var(--w)) -20px transparent, calc(-7*var(--w)) 0 currentColor, calc(-8*var(--w)) -20px transparent, calc(-9*var(--w)) 0 currentColor;
     }
 
-    54% {
+    57% {
         text-shadow:
             calc(0*var(--w)) -20px transparent, calc(-1*var(--w)) 0 currentColor, calc(-2*var(--w)) -20px transparent, calc(-3*var(--w)) 0 currentColor, calc(-4*var(--w)) -20px transparent,
             calc(-5*var(--w)) -20px transparent, calc(-6*var(--w)) -20px transparent, calc(-7*var(--w)) 0 currentColor, calc(-8*var(--w)) -20px transparent, calc(-9*var(--w)) 0 currentColor;
     }
 
-    63% {
+    66.5% {
         text-shadow:
             calc(0*var(--w)) -20px transparent, calc(-1*var(--w)) 0 currentColor, calc(-2*var(--w)) -20px transparent, calc(-3*var(--w)) 0 currentColor, calc(-4*var(--w)) -20px transparent,
             calc(-5*var(--w)) -20px transparent, calc(-6*var(--w)) -20px transparent, calc(-7*var(--w)) 0 currentColor, calc(-8*var(--w)) -20px transparent, calc(-9*var(--w)) -20px transparent;
     }
 
-    72% {
+    76% {
         text-shadow:
             calc(0*var(--w)) -20px transparent, calc(-1*var(--w)) -20px transparent, calc(-2*var(--w)) -20px transparent, calc(-3*var(--w)) 0 currentColor, calc(-4*var(--w)) -20px transparent,
             calc(-5*var(--w)) -20px transparent, calc(-6*var(--w)) -20px transparent, calc(-7*var(--w)) 0 currentColor, calc(-8*var(--w)) -20px transparent, calc(-9*var(--w)) -20px transparent;
@@ -3298,7 +3298,7 @@ body.-dark .o-header__logoMobile .a-svg {
             calc(-5*var(--w)) -20px transparent, calc(-6*var(--w)) -20px transparent, calc(-7*var(--w)) -20px transparent, calc(-8*var(--w)) -20px transparent, calc(-9*var(--w)) -20px transparent;
     }
 
-    90% {
+    95% {
         text-shadow:
             calc(0*var(--w)) -20px transparent, calc(-1*var(--w)) -20px transparent, calc(-2*var(--w)) -20px transparent, calc(-3*var(--w)) -20px transparent, calc(-4*var(--w)) -20px transparent,
             calc(-5*var(--w)) -20px transparent, calc(-6*var(--w)) -20px transparent, calc(-7*var(--w)) -20px transparent, calc(-8*var(--w)) -20px transparent, calc(-9*var(--w)) -20px transparent;

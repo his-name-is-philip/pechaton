@@ -11,5 +11,15 @@ declare module '@barba/core' {
   export default barba;
 }
 
+export interface BarbaNavigator {
+  go(href: string, trigger?: string): Promise<unknown> | void;
+}
+
+declare global {
+  interface Window {
+    Y?: BarbaNavigator;
+  }
+}
+
 
 

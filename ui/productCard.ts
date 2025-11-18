@@ -14,8 +14,12 @@ import { dropHeaderFor2s } from '../index';
  * @returns HTMLElement representing the outer column (.col.mb-5)
  */
 export function createProductCard(ws: Worksheet): HTMLElement {
-    const outer = document.createElement('div');
+    const productLink = `./product?id=${ws.id}`;
+    const outer = document.createElement('a');
     outer.className = 'col mb-5';
+    outer.href = productLink;
+    outer.setAttribute('aria-label', `Перейти к товару ${ws.name}`);
+    outer.dataset.barbaTrigger = 'catalog-card';
 
     const card = document.createElement('div');
     card.className = 'card h-100 | -radius';
@@ -52,7 +56,8 @@ export function createProductCard(ws: Worksheet): HTMLElement {
     const footerInner = document.createElement('div');
     footerInner.className = 'text-center';
 
-    const btn = document.createElement('a');
+    const btn = document.createElement('button');
+    btn.type = 'button';
     btn.className = 'a-social | a-button -secondary js-add-to-cart';
     btn.setAttribute('role', 'button');
     btn.setAttribute('data-id', String(ws.id));
@@ -80,6 +85,7 @@ export function createProductCard(ws: Worksheet): HTMLElement {
     // attach click handler
     btn.addEventListener('click', async (ev) => {
         ev.preventDefault();
+        ev.stopPropagation();
         // If already added, simply flash and return
         if (btnHasAddedState(btn)) {
             flashElement(btn);

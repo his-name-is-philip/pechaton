@@ -1,7 +1,11 @@
 // src/assets/mybarba.ts
+import { initProductPage } from '@/ui/productPage';
 import catalogService from '../services/catalogService';
 
-const CATALOG_SELECTOR = '[data-barba-namespace="catalog"]';
+enum NamespaceParam {
+    CATALOG = '[data-barba-namespace="catalog"]',
+    PRODUCT = '[data-barba-namespace="product-item"]',
+}
 
 /**
  * Register a watcher that detects insertion of the catalog container (Barba or direct load)
@@ -16,9 +20,9 @@ export function registerCatalogRenderer(): void {
     /**
      * Handle a newly found catalog container element.
      *
-     * @param el - the element matching CATALOG_SELECTOR (Barba-inserted container or initial DOM)
+     * @param el - the element matching NamespaceParam.CATALOG (Barba-inserted container or initial DOM)
      */
-    function handleFound(el: Element): void {
+    function handleCatalogFound(el: Element): void {
         if (handled.has(el)) return;
         handled.add(el);
 
@@ -43,10 +47,12 @@ export function registerCatalogRenderer(): void {
     /**
      * Scan for an existing catalog container on initial load.
      */
-    function scanExisting(): void {
+    async function scanExisting(): Promise<void> {
         console.log('mybarba: scanExisting');
-        const el = document.querySelector<Element>(CATALOG_SELECTOR);
-        if (el) handleFound(el);
+        const catalogEl = document.querySelector<Element>(NamespaceParam.CATALOG);
+        if (catalogEl) handleCatalogFound(catalogEl);
+        const productEl = document.querySelector<Element>(NamespaceParam.PRODUCT);
+        if (productEl) initProductPage(productEl);
     }
 
     // Initial load: if DOM not ready, wait for DOMContentLoaded
@@ -72,14 +78,18 @@ export function registerCatalogRenderer(): void {
                 const el = node as Element;
 
                 // If the added node itself is the catalog container
-                if (el.matches(CATALOG_SELECTOR)) {
-                    handleFound(el);
+                if (el.matches(NamespaceParam.CATALOG)) {
+                    handleCatalogFound(el);
+                    continue;
+                } else if (el.matches(NamespaceParam.PRODUCT)) {
+                    initProductPage(el);
                     continue;
                 }
 
-                // Otherwise, check if the container exists somewhere inside the added subtree
-                const inner = el.querySelector(CATALOG_SELECTOR);
-                if (inner) handleFound(inner);
+                // todo хз че за двойной вызов, чекни
+                // // Otherwise, check if the container exists somewhere inside the added subtree
+                // const inner = el.querySelector(NamespaceParam.CATALOG);
+                // if (inner) handleCatalogFound(inner);
             }
         }
     });
