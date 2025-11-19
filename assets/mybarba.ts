@@ -79,9 +79,11 @@ export function registerCatalogRenderer(): void {
 
                 // If the added node itself is the catalog container
                 if (el.matches(NamespaceParam.CATALOG)) {
+                    console.log('mybarba: calling renderCatalog from mutation observer', el);
                     handleCatalogFound(el);
                     continue;
                 } else if (el.matches(NamespaceParam.PRODUCT)) {
+                    console.log('mybarba: calling initProductPage from mutation observer', el);
                     initProductPage(el);
                     continue;
                 }

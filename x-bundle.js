@@ -8565,9 +8565,11 @@ function registerCatalogRenderer() {
           continue;
         const el2 = node;
         if (el2.matches('[data-barba-namespace="catalog"]' /* CATALOG */)) {
+          console.log("mybarba: calling renderCatalog from mutation observer", el2);
           handleCatalogFound(el2);
           continue;
         } else if (el2.matches('[data-barba-namespace="product-item"]' /* PRODUCT */)) {
+          console.log("mybarba: calling initProductPage from mutation observer", el2);
           initProductPage(el2);
           continue;
         }

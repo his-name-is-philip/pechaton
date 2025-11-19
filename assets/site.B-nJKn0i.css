@@ -179,6 +179,7 @@
     --color-brown: #461e10;
     --color-green: #09543d;
     --color-white: #ffffff;
+    /* don't forget to update semi-fade and ready colors in o-loader__letters */
     --color-cream: #fffdf7;
 
     /* Darker variants */
@@ -252,36 +253,6 @@
 
     to {
         opacity: 1
-    }
-}
-
-@keyframes lds-ellipsis1 {
-    0% {
-        transform: scale(0)
-    }
-
-    to {
-        transform: scale(1)
-    }
-}
-
-@keyframes lds-ellipsis3 {
-    0% {
-        transform: scale(1)
-    }
-
-    to {
-        transform: scale(0)
-    }
-}
-
-@keyframes lds-ellipsis2 {
-    0% {
-        transform: translate(0)
-    }
-
-    to {
-        transform: translate(2.1rem)
     }
 }
 
@@ -1887,22 +1858,18 @@
 
 .m-loaderSection__loader div:nth-child(1) {
     left: .3rem;
-    animation: lds-ellipsis1 .6s infinite
 }
 
 .m-loaderSection__loader div:nth-child(2) {
     left: .3rem;
-    animation: lds-ellipsis2 .6s infinite
 }
 
 .m-loaderSection__loader div:nth-child(3) {
     left: 2.5rem;
-    animation: lds-ellipsis2 .6s infinite
 }
 
 .m-loaderSection__loader div:nth-child(4) {
     left: 4.7rem;
-    animation: lds-ellipsis3 .6s infinite
 }
 
 .m-pagination {
@@ -3214,8 +3181,6 @@ body.-dark .o-header__logoMobile .a-svg {
     animation: logo 1s infinite steps(7)
 }  */
 
-
-/* HTML: <div class="loader"></div> */
 .o-loader__letters {
     --w: 11ch;
     font-weight: bold;
@@ -3226,8 +3191,11 @@ body.-dark .o-header__logoMobile .a-svg {
     overflow: hidden;
     white-space: nowrap;
     color: var(--color-cream);
-    animation: l40 1.2s infinite;
-    font-optical-sizing: auto;
+    animation: l40 2.5s infinite;
+    --semi-fade: #fffdf70d;
+    --ready: #fffdf7ca;
+    /* font-optical-sizing: auto; */
+    /* will-change: transform, opacity; */
 }
 
 .o-loader__letters:before {
@@ -3237,71 +3205,112 @@ body.-dark .o-header__logoMobile .a-svg {
 
 @keyframes l40 {
 
-    0%,
-    100% {
+    /* 0:  Загрузка...  (все видны) */
+    0%, 100% {
         text-shadow:
-            calc(0*var(--w)) 0 currentColor, calc(-1*var(--w)) 0 currentColor, calc(-2*var(--w)) 0 currentColor, calc(-3*var(--w)) 0 currentColor, calc(-4*var(--w)) 0 currentColor,
-            calc(-5*var(--w)) 0 currentColor, calc(-6*var(--w)) 0 currentColor, calc(-7*var(--w)) 0 currentColor, calc(-8*var(--w)) 0 currentColor, calc(-9*var(--w)) 0 currentColor;
+            calc(0*var(--w)) 0 currentColor, calc(-1*var(--w)) 0 currentColor, calc(-2*var(--w)) 0 currentColor,
+            calc(-3*var(--w)) 0 currentColor, calc(-4*var(--w)) 0 currentColor, calc(-5*var(--w)) 0 var(--ready),
+            calc(-6*var(--w)) 0 currentColor, calc(-7*var(--w)) 0 currentColor, calc(-8*var(--w)) 0 currentColor,
+            calc(-9*var(--w)) 0 currentColor, calc(-10*var(--w)) 0 currentColor;
     }
 
-    9.5% {
+    /* 1:  Загру_ка...  (индекс 5 -> transparent) */
+    10.67% {
         text-shadow:
-            calc(0*var(--w)) 0 currentColor, calc(-1*var(--w)) 0 currentColor, calc(-2*var(--w)) -20px transparent, calc(-3*var(--w)) 0 currentColor, calc(-4*var(--w)) 0 currentColor,
-            calc(-5*var(--w)) 0 currentColor, calc(-6*var(--w)) 0 currentColor, calc(-7*var(--w)) 0 currentColor, calc(-8*var(--w)) 0 currentColor, calc(-9*var(--w)) 0 currentColor;
+            calc(0*var(--w)) 0 currentColor, calc(-1*var(--w)) 0 currentColor, calc(-2*var(--w)) 0 currentColor,
+            calc(-3*var(--w)) 0 currentColor, calc(-4*var(--w)) 0 currentColor, calc(-5*var(--w)) -18px var(--semi-fade),
+            calc(-6*var(--w)) 0 currentColor, calc(-7*var(--w)) 0 currentColor, calc(-8*var(--w)) 0 currentColor,
+            calc(-9*var(--w)) 0 var(--ready), calc(-10*var(--w)) 0 currentColor;
     }
 
-    19% {
+    /* 2:  Загру_ка._.  (индексы 5 и 9 -> transparent) */
+    20.85% {
         text-shadow:
-            calc(0*var(--w)) 0 currentColor, calc(-1*var(--w)) 0 currentColor, calc(-2*var(--w)) -20px transparent, calc(-3*var(--w)) 0 currentColor, calc(-4*var(--w)) 0 currentColor,
-            calc(-5*var(--w)) 0 currentColor, calc(-6*var(--w)) -20px transparent, calc(-7*var(--w)) 0 currentColor, calc(-8*var(--w)) 0 currentColor, calc(-9*var(--w)) 0 currentColor;
+            calc(0*var(--w)) 0 currentColor, calc(-1*var(--w)) 0 var(--ready), calc(-2*var(--w)) 0 currentColor,
+            calc(-3*var(--w)) 0 currentColor, calc(-4*var(--w)) 0 currentColor, calc(-5*var(--w)) -20px transparent,
+            calc(-6*var(--w)) 0 currentColor, calc(-7*var(--w)) 0 currentColor, calc(-8*var(--w)) 0 currentColor,
+            calc(-9*var(--w)) -18px var(--semi-fade), calc(-10*var(--w)) 0 currentColor;
     }
 
-    28.5% {
+    /* 3:  З_гру_ка._.  (индексы 1,5,9 -> transparent) */
+    30.52% {
         text-shadow:
-            calc(0*var(--w)) -20px transparent, calc(-1*var(--w)) 0 currentColor, calc(-2*var(--w)) -20px transparent, calc(-3*var(--w)) 0 currentColor, calc(-4*var(--w)) 0 currentColor,
-            calc(-5*var(--w)) 0 currentColor, calc(-6*var(--w)) -20px transparent, calc(-7*var(--w)) 0 currentColor, calc(-8*var(--w)) 0 currentColor, calc(-9*var(--w)) 0 currentColor;
+            calc(0*var(--w)) 0 currentColor, calc(-1*var(--w)) -18px var(--semi-fade), calc(-2*var(--w)) 0 currentColor,
+            calc(-3*var(--w)) 0 currentColor, calc(-4*var(--w)) 0 var(--ready), calc(-5*var(--w)) -20px transparent,
+            calc(-6*var(--w)) 0 currentColor, calc(-7*var(--w)) 0 currentColor, calc(-8*var(--w)) 0 currentColor,
+            calc(-9*var(--w)) -20px transparent, calc(-10*var(--w)) 0 currentColor;
     }
 
-    38% {
+    /* 4:  З_гр__ка._.  (индексы 1,4,5,9 -> transparent) */
+    39.70% {
         text-shadow:
-            calc(0*var(--w)) -20px transparent, calc(-1*var(--w)) 0 currentColor, calc(-2*var(--w)) -20px transparent, calc(-3*var(--w)) 0 currentColor, calc(-4*var(--w)) 0 currentColor,
-            calc(-5*var(--w)) -20px transparent, calc(-6*var(--w)) -20px transparent, calc(-7*var(--w)) 0 currentColor, calc(-8*var(--w)) 0 currentColor, calc(-9*var(--w)) 0 currentColor;
+            calc(0*var(--w)) 0 currentColor, calc(-1*var(--w)) -20px transparent, calc(-2*var(--w)) 0 currentColor,
+            calc(-3*var(--w)) 0 currentColor, calc(-4*var(--w)) -18px var(--semi-fade), calc(-5*var(--w)) -20px transparent,
+            calc(-6*var(--w)) 0 currentColor, calc(-7*var(--w)) 0 var(--ready), calc(-8*var(--w)) 0 currentColor,
+            calc(-9*var(--w)) -20px transparent, calc(-10*var(--w)) 0 currentColor;
     }
 
-    47.5% {
+    /* 5:  З_гр__к_._.  (индексы 1,4,5,7,9 -> transparent) — сначала поднимаем 7-й */
+    48.38% {
         text-shadow:
-            calc(0*var(--w)) -20px transparent, calc(-1*var(--w)) 0 currentColor, calc(-2*var(--w)) -20px transparent, calc(-3*var(--w)) 0 currentColor, calc(-4*var(--w)) 0 currentColor,
-            calc(-5*var(--w)) -20px transparent, calc(-6*var(--w)) -20px transparent, calc(-7*var(--w)) 0 currentColor, calc(-8*var(--w)) -20px transparent, calc(-9*var(--w)) 0 currentColor;
+            calc(0*var(--w)) 0 currentColor, calc(-1*var(--w)) -20px transparent, calc(-2*var(--w)) 0 currentColor,
+            calc(-3*var(--w)) 0 currentColor, calc(-4*var(--w)) -20px transparent, calc(-5*var(--w)) -20px transparent,
+            calc(-6*var(--w)) 0 currentColor, calc(-7*var(--w)) -18px var(--semi-fade), calc(-8*var(--w)) 0 currentColor,
+            calc(-9*var(--w)) -20px transparent, calc(-10*var(--w)) 0 var(--ready);
     }
 
-    57% {
+    /* 6:  З_гр__к_.__  (индексы 1,4,5,7,9,10 -> transparent) — затем поднимаем 10-й */
+    56.56% {
         text-shadow:
-            calc(0*var(--w)) -20px transparent, calc(-1*var(--w)) 0 currentColor, calc(-2*var(--w)) -20px transparent, calc(-3*var(--w)) 0 currentColor, calc(-4*var(--w)) -20px transparent,
-            calc(-5*var(--w)) -20px transparent, calc(-6*var(--w)) -20px transparent, calc(-7*var(--w)) 0 currentColor, calc(-8*var(--w)) -20px transparent, calc(-9*var(--w)) 0 currentColor;
+            calc(0*var(--w)) 0 currentColor, calc(-1*var(--w)) -20px transparent, calc(-2*var(--w)) 0 currentColor,
+            calc(-3*var(--w)) 0 currentColor, calc(-4*var(--w)) -20px transparent, calc(-5*var(--w)) -20px transparent,
+            calc(-6*var(--w)) 0 currentColor, calc(-7*var(--w)) -20px transparent, calc(-8*var(--w)) 0 currentColor,
+            calc(-9*var(--w)) -20px transparent, calc(-10*var(--w)) -18px var(--semi-fade);
     }
 
-    66.5% {
+    /* 7:  __гр__к_.__  (индексы 0,1,4,5,7,9,10 -> transparent) */
+    64.24% {
         text-shadow:
-            calc(0*var(--w)) -20px transparent, calc(-1*var(--w)) 0 currentColor, calc(-2*var(--w)) -20px transparent, calc(-3*var(--w)) 0 currentColor, calc(-4*var(--w)) -20px transparent,
-            calc(-5*var(--w)) -20px transparent, calc(-6*var(--w)) -20px transparent, calc(-7*var(--w)) 0 currentColor, calc(-8*var(--w)) -20px transparent, calc(-9*var(--w)) -20px transparent;
+            calc(0*var(--w)) -18px var(--semi-fade), calc(-1*var(--w)) -20px transparent, calc(-2*var(--w)) 0 currentColor,
+            calc(-3*var(--w)) 0 currentColor, calc(-4*var(--w)) -20px transparent, calc(-5*var(--w)) -20px transparent,
+            calc(-6*var(--w)) 0 currentColor, calc(-7*var(--w)) -20px transparent, calc(-8*var(--w)) 0 currentColor,
+            calc(-9*var(--w)) -20px transparent, calc(-10*var(--w)) -20px transparent;
     }
 
-    76% {
+    /* 8:  __гр__к____  (индексы 0,1,4,5,7,8,9,10 -> transparent) */
+    71.42% {
         text-shadow:
-            calc(0*var(--w)) -20px transparent, calc(-1*var(--w)) -20px transparent, calc(-2*var(--w)) -20px transparent, calc(-3*var(--w)) 0 currentColor, calc(-4*var(--w)) -20px transparent,
-            calc(-5*var(--w)) -20px transparent, calc(-6*var(--w)) -20px transparent, calc(-7*var(--w)) 0 currentColor, calc(-8*var(--w)) -20px transparent, calc(-9*var(--w)) -20px transparent;
+            calc(0*var(--w)) -20px transparent, calc(-1*var(--w)) -20px transparent, calc(-2*var(--w)) 0 currentColor,
+            calc(-3*var(--w)) 0 currentColor, calc(-4*var(--w)) -20px transparent, calc(-5*var(--w)) -20px transparent,
+            calc(-6*var(--w)) 0 currentColor, calc(-7*var(--w)) -20px transparent, calc(-8*var(--w)) -18px var(--semi-fade),
+            calc(-9*var(--w)) -20px transparent, calc(-10*var(--w)) -20px transparent;
     }
 
-    81% {
+    /* 9:  ___р__к____  (индексы 0,1,2,4,5,7,8,9,10 -> transparent) — видны: 3 и 6 */
+    78.10% {
         text-shadow:
-            calc(0*var(--w)) -20px transparent, calc(-1*var(--w)) -20px transparent, calc(-2*var(--w)) -20px transparent, calc(-3*var(--w)) 0 currentColor, calc(-4*var(--w)) -20px transparent,
-            calc(-5*var(--w)) -20px transparent, calc(-6*var(--w)) -20px transparent, calc(-7*var(--w)) -20px transparent, calc(-8*var(--w)) -20px transparent, calc(-9*var(--w)) -20px transparent;
+            calc(0*var(--w)) -20px transparent, calc(-1*var(--w)) -20px transparent, calc(-2*var(--w)) -18px var(--semi-fade),
+            calc(-3*var(--w)) 0 currentColor, calc(-4*var(--w)) -20px transparent, calc(-5*var(--w)) -20px transparent,
+            calc(-6*var(--w)) 0 currentColor, calc(-7*var(--w)) -20px transparent, calc(-8*var(--w)) -20px transparent,
+            calc(-9*var(--w)) -20px transparent, calc(-10*var(--w)) -20px transparent;
     }
 
-    95% {
+    /* 10:  ______к____  (виден только индекс 6) */
+    84.28% {
         text-shadow:
-            calc(0*var(--w)) -20px transparent, calc(-1*var(--w)) -20px transparent, calc(-2*var(--w)) -20px transparent, calc(-3*var(--w)) -20px transparent, calc(-4*var(--w)) -20px transparent,
-            calc(-5*var(--w)) -20px transparent, calc(-6*var(--w)) -20px transparent, calc(-7*var(--w)) -20px transparent, calc(-8*var(--w)) -20px transparent, calc(-9*var(--w)) -20px transparent;
+            calc(0*var(--w)) -20px transparent, calc(-1*var(--w)) -20px transparent, calc(-2*var(--w)) -20px transparent,
+            calc(-3*var(--w)) -18px var(--semi-fade), calc(-4*var(--w)) -20px transparent, calc(-5*var(--w)) -20px transparent,
+            calc(-6*var(--w)) 0 currentColor, calc(-7*var(--w)) -20px transparent, calc(-8*var(--w)) -20px transparent,
+            calc(-9*var(--w)) -20px transparent, calc(-10*var(--w)) -20px transparent;
+    }
+
+    /* 11:  ___________  (все исчезли) */
+    89.96% {
+        text-shadow:
+            calc(0*var(--w)) -20px transparent, calc(-1*var(--w)) -20px transparent, calc(-2*var(--w)) -20px transparent,
+            calc(-3*var(--w)) -20px transparent, calc(-4*var(--w)) -20px transparent, calc(-5*var(--w)) -20px transparent,
+            calc(-6*var(--w)) -15px transparent, calc(-7*var(--w)) -20px transparent, calc(-8*var(--w)) -20px transparent,
+            calc(-9*var(--w)) -20px transparent, calc(-10*var(--w)) -20px transparent;
     }
 }
 
@@ -3313,6 +3322,8 @@ body.-dark .o-header__logoMobile .a-svg {
 
 .o-loader.-white .o-loader__letters {
     color: var(--color-green);
+    --semi-fade: #09543d0d;
+    --ready: #09543dca;
 }
 
 .o-map {
