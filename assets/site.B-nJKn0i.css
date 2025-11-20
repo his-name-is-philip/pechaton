@@ -5324,6 +5324,8 @@ body.-dark .o-header__logoMobile .a-svg {
         transform: translateY(-100%)
     }
 
+    
+
     .o-menu__items {
         margin-top: 6rem;
         opacity: 0;
@@ -5713,22 +5715,6 @@ body.-dark .o-header__logoMobile .a-svg {
     text-align: center !important;
 }
 
-#catalog-grid .text-muted {
-    color: #6c757d !important;
-}
-
-#catalog-grid .text-warning {
-    color: #ffc107 !important;
-}
-
-#catalog-grid .text-decoration-line-through {
-    text-decoration: line-through !important;
-}
-
-#catalog-grid .fw-bolder {
-    font-weight: bolder !important;
-}
-
 /* Background utilities */
 #catalog-grid .bg-transparent {
     background-color: transparent !important;
@@ -5778,4 +5764,46 @@ body.-dark .o-header__logoMobile .a-svg {
 #catalog-grid .card-img-top,
 #catalog-grid .card-img-bottom {
     width: 100%;
+}
+
+#cart-bubble {
+    --bubble-size: 1.35;
+    /* gap — расстояние между текстом и пузырьком (в em или ch) */
+    --bubble-gap: 0.35ch;
+    display: inline-block;
+    position: absolute;
+    /* НЕ влияет на поток текста */
+    top: 50%;
+    /* вертикальный центр относительно родителя */
+    transform: translateY(-50%) translateX(0);
+    /* центрирование по вертикали */
+    left: 100%;
+    /* позиционируем справа от слова */
+    margin-left: var(--bubble-gap);
+    /* небольшой отступ от слова */
+    display: block;
+    width: calc(var(--bubble-size) * 1em);
+    height: calc(var(--bubble-size) * 1em);
+    font-family: inherit;
+    font-weight: inherit;
+    font-size: 1em;
+    line-height: 1;
+
+
+    /* Размер SVG задаём в em, умножая на переменную.
+     Таким образом: ширина/высота круга = --bubble-size * font-size(parent) */
+}
+
+#cart-bubble-svg {
+    display: block;
+    width: calc(var(--bubble-size) * 1em);
+    height: calc(var(--bubble-size) * 1em);
+
+    /* чтобы текст внутри SVG наследовал шрифт и размер родителя */
+    font-family: inherit;
+    font-weight: inherit;
+    font-size: 1em;
+    line-height: 1;
+    transform-origin: left center;
+    /* will-change: transform, opacity; */
 }

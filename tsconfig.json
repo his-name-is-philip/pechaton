@@ -30,7 +30,7 @@
     "services/**/*.ts",
     "ui/**/*.ts",
     "entities/**/*.ts"
-, "legacy/mybarba-beta.ts", "legacy/mybarba copy.ts", "legacy/cssHelper.ts", "legacy/productCardNoPic.ts"  ],
+, "legacy/mybarba-beta.ts", "legacy/mybarba copy.ts", "legacy/cssHelper.ts", "legacy/productCardNoPic.ts", "legacy/catalogService copy.ts"  ],
   "exclude": ["node_modules", "dist"]
 }
 

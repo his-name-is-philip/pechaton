@@ -1142,10 +1142,33 @@
                                 <li class="-right"><a class="a-link" data-website="nav" href="about.html"
                                         title="О нас"><span>О нас</span></a>
                                 <li><a class="a-link" data-website="nav" href="#cart" data-cart="open"
-                                        title="Корзина"><span>Корзина</span></a></li>
+                                        title="Корзина"><span class="cart-label">Корзина&nbsp;
+
+<!-- вставь этот блок прямо после слова "Капуста" -->
+<span id="cart-bubble" aria-hidden="true" title="2">
+    <svg id="cart-bubble-svg" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" focusable="false">
+        <defs>
+            <!-- Маска: белое = видимо, чёрное = вырез (прозрачность) -->
+            <mask id="mask-bubble" maskUnits="userSpaceOnUse" maskContentUnits="userSpaceOnUse"
+            x="0" y="0" width="120" height="120">
+                <rect x="0" y="0" width="100%" height="100%" fill="white" />
+                <!-- цифра 2 в маске — чёрным => зона прозрачности -->
+                <text id="cart-counter" x="50%" y="50%" text-anchor="middle" dominant-baseline="central" font-family="inherit"
+                    font-weight="700" fill="black" font-size="86">
+                    0
+                </text>
+            </mask>
+        </defs>
+
+        <circle cx="50%" cy="50%" r="50%" fill="currentColor" mask="url(#mask-bubble)" />
+    </svg>
+</span>
+
+                                        </span></a>&nbsp;&nbsp;&nbsp;&nbsp;
+                                <!-- </li>
                                 </li>
                                 </li>
-                                </li>
+                                </li> -->
                             </ul>
                             <div class="o-menu__socials">
                                 <p class="tx-p -clrcream">Also find us on
@@ -1190,12 +1213,10 @@
                 <div class="row align-center-start">
                     <div class="column-22 lg-column-10 no-width | -txcenter">
                         <div class="m-title |" data-hero="" data-module-title="title1020378528" data-scroll="">
-                            <p class="tx-xs" data-reveal="">The pharmacy without the headaches
+                            <p class="tx-xs" data-reveal="">Готовые материалы для развития эмоционального интеллекта детей и подростков
                             <h1 class="a-title | tx-xxl" data-title="title">Распечатай<br /><strong>ответь, обсуди</strong></h1>
                             <div class="m-textContent" data-reveal="">
-                                <p>Phamily does more than help you find THE right pharmacy. We also accompany you
-                                    to get started with complete autonomy: advice, training, digital tools,
-                                    follow-up...</p>
+                                <p>Помогаем детям говорить о своих чувствах, становиться успешными и уверенными в себе</p>
                             </div>
                             </p>
                         </div>

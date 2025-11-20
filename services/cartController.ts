@@ -30,7 +30,7 @@ class CartController {
         }
         // Emit strongly-typed event with a class instance
         const items = this.model.getItems();
-        EventBus.emit(new CartUpdatedDetail(items));
+        EventBus.emit(new CartUpdatedDetail(items, false));
     }
 
     /**
@@ -47,6 +47,7 @@ class CartController {
      * @param ws - object with id, name and priceKopecks properties.
      */
     addFromWorksheet(ws: Worksheet): boolean {
+        // todo move to cartEvents.ts
         const success = this.model.add({
             worksheetId: ws.id,
             name: ws.name,
@@ -54,7 +55,7 @@ class CartController {
         });
         if (success) {
             this.persist();
-            EventBus.emit(new CartUpdatedDetail(this.model.getItems()));
+            EventBus.emit(new CartUpdatedDetail(this.model.getItems(), true));
         }
         if (!success) {
             console.log('addFromWorksheet: item already existed in cart');
@@ -72,7 +73,7 @@ class CartController {
         const success = this.model.remove(worksheetId);
         if (success) {
             this.persist();
-            EventBus.emit(new CartUpdatedDetail(this.model.getItems()));
+            EventBus.emit(new CartUpdatedDetail(this.model.getItems(), false));
         }
         if (!success) {
             console.log('removeFromWorksheet: item not found in cart');
@@ -86,7 +87,7 @@ class CartController {
     clear(): void {
         this.model.clear();
         this.persist();
-        EventBus.emit(new CartUpdatedDetail(this.model.getItems()));
+        EventBus.emit(new CartUpdatedDetail(this.model.getItems(), false));
     }
 
     /**

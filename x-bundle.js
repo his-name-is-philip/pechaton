@@ -7636,15 +7636,16 @@ var EventDetail = class {
 
 // entities/eventDetails.ts
 var CartUpdatedDetail = class extends EventDetail {
-  constructor(items) {
+  constructor(items, justAdded) {
     super("cart:updated" /* CART_UPDATED */);
     this.items = items;
+    this.justAdded = justAdded;
   }
   /**
    * Сериализация детали — полезна для логирования.
    */
   toJSON() {
-    return { event: this.event, items: this.items };
+    return { event: this.event, items: this.items, justAdded: this.justAdded };
   }
 };
 var CheckoutStartDetail = class extends EventDetail {
@@ -7810,7 +7811,7 @@ var CartController = class {
       this.model.loadSnapshot(snap);
     }
     const items = this.model.getItems();
-    EventBus.emit(new CartUpdatedDetail(items));
+    EventBus.emit(new CartUpdatedDetail(items, false));
   }
   /**
    * Persist cart snapshot to storage.
@@ -7832,7 +7833,7 @@ var CartController = class {
     });
     if (success) {
       this.persist();
-      EventBus.emit(new CartUpdatedDetail(this.model.getItems()));
+      EventBus.emit(new CartUpdatedDetail(this.model.getItems(), true));
     }
     if (!success) {
       console.log("addFromWorksheet: item already existed in cart");
@@ -7849,7 +7850,7 @@ var CartController = class {
     const success = this.model.remove(worksheetId);
     if (success) {
       this.persist();
-      EventBus.emit(new CartUpdatedDetail(this.model.getItems()));
+      EventBus.emit(new CartUpdatedDetail(this.model.getItems(), false));
     }
     if (!success) {
       console.log("removeFromWorksheet: item not found in cart");
@@ -7862,7 +7863,7 @@ var CartController = class {
   clear() {
     this.model.clear();
     this.persist();
-    EventBus.emit(new CartUpdatedDetail(this.model.getItems()));
+    EventBus.emit(new CartUpdatedDetail(this.model.getItems(), false));
   }
   /**
    * Get current cart items.
@@ -7905,164 +7906,9 @@ var CartController = class {
 var cartController = new CartController();
 var cartController_default = cartController;
 
-// ui/productCard.ts
-function createProductCard(ws2) {
-  const productLink = `./product?id=${ws2.id}`;
-  const outer = document.createElement("a");
-  outer.className = "col mb-5";
-  outer.href = productLink;
-  outer.setAttribute("aria-label", `\u041F\u0435\u0440\u0435\u0439\u0442\u0438 \u043A \u0442\u043E\u0432\u0430\u0440\u0443 ${ws2.name}`);
-  outer.dataset.barbaTrigger = "catalog-card";
-  const card = document.createElement("div");
-  card.className = "card h-100 | -radius";
-  card.setAttribute("data-id", String(ws2.id));
-  const img = document.createElement("img");
-  img.className = "card-img-top";
-  const match = ws2.previewUrl.match(/id=(.*)$/);
-  img.src = `media/previews/${match?.[1]}.png`;
-  console.log("productCard: img.src:", img.src);
-  img.alt = ws2.name;
-  const body = document.createElement("div");
-  body.className = "card-body p-4";
-  const bodyInner = document.createElement("div");
-  bodyInner.className = "text-center";
-  const title = document.createElement("h5");
-  title.className = "tx-xs";
-  title.textContent = ws2.name;
-  const priceEl = document.createElement("div");
-  priceEl.innerText = formatPrice(ws2.priceKopecks);
-  bodyInner.appendChild(title);
-  bodyInner.appendChild(priceEl);
-  body.appendChild(bodyInner);
-  const footer = document.createElement("div");
-  footer.className = "card-footer p-4 pt-0 border-top-0 bg-transparent";
-  const footerInner = document.createElement("div");
-  footerInner.className = "text-center";
-  const btn = document.createElement("button");
-  btn.type = "button";
-  btn.className = "a-social | a-button -secondary js-add-to-cart";
-  btn.setAttribute("role", "button");
-  btn.setAttribute("data-id", String(ws2.id));
-  btn.setAttribute("aria-label", `Add ${ws2.name} to cart`);
-  btn.style.cursor = "pointer";
-  btn.innerHTML = `<svg aria-hidden="true" class="a-svg" focusable="false"><use href="#icon-cart"></use></svg>&nbsp;\u0412&nbsp;\u043A\u043E\u0440\u0437\u0438\u043D\u0443`;
-  footerInner.appendChild(btn);
-  footer.appendChild(footerInner);
-  card.appendChild(img);
-  card.appendChild(body);
-  card.appendChild(footer);
-  outer.appendChild(card);
-  const isAdded = cartController_default.has(ws2.id);
-  if (isAdded) {
-    setAddedState(btn);
-  } else {
-    setDefaultState(btn);
-  }
-  btn.addEventListener("click", async (ev) => {
-    ev.preventDefault();
-    ev.stopPropagation();
-    if (btnHasAddedState(btn)) {
-      flashElement(btn);
-      return;
-    }
-    setAddedState(btn);
-    dropHeaderFor2s();
-    let worksheet = ws2;
-    try {
-      if (!worksheet || typeof worksheet.id !== "number") {
-        const id = Number(btn.getAttribute("data-id"));
-        const maybe = await catalogService_default.getById(id);
-        if (!maybe)
-          throw new Error("Worksheet not found");
-        worksheet = maybe;
-      }
-      const added = cartController_default.addFromWorksheet(worksheet);
-      if (!added) {
-        setAddedState(btn);
-        flashElement(btn);
-      }
-    } catch (err) {
-      console.error("add to cart failed", err);
-      setDefaultState(btn);
-      alert("\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u0434\u043E\u0431\u0430\u0432\u0438\u0442\u044C \u0442\u043E\u0432\u0430\u0440 \u0432 \u043A\u043E\u0440\u0437\u0438\u043D\u0443. \u041F\u043E\u0432\u0442\u043E\u0440\u0438\u0442\u0435 \u043F\u043E\u043F\u044B\u0442\u043A\u0443.");
-    }
-  });
-  return outer;
-}
-function setAddedState(button) {
-  const svg = button.querySelector("svg");
-  const svgHtml = svg ? svg.outerHTML : "";
-  button.classList.remove("-secondary");
-  if (!button.classList.contains("-tertiary"))
-    button.classList.add("-tertiary");
-  button.setAttribute("aria-pressed", "true");
-  button.setAttribute("aria-disabled", "true");
-  button.style.pointerEvents = "none";
-  if (svgHtml) {
-    button.innerHTML = `${svgHtml}&nbsp;\u0414\u043E\u0431\u0430\u0432\u043B\u0435\u043D\u043E`;
-  } else {
-    button.textContent = "\u0414\u043E\u0431\u0430\u0432\u043B\u0435\u043D\u043E";
-  }
-}
-function setDefaultState(button) {
-  const svg = button.querySelector("svg");
-  const svgHtml = svg ? svg.outerHTML : "";
-  button.classList.remove("-tertiary");
-  if (!button.classList.contains("-secondary"))
-    button.classList.add("-secondary");
-  button.removeAttribute("aria-pressed");
-  button.removeAttribute("aria-disabled");
-  button.style.pointerEvents = "";
-  if (svgHtml) {
-    button.innerHTML = `${svgHtml}&nbsp;\u0412&nbsp;\u043A\u043E\u0440\u0437\u0438\u043D\u0443`;
-  } else {
-    button.textContent = "\u0412 \u043A\u043E\u0440\u0437\u0438\u043D\u0443";
-  }
-}
-function btnHasAddedState(button) {
-  return button.classList.contains("-tertiary") || button.getAttribute("aria-disabled") === "true";
-}
-function updateAllProductButtons(detail) {
-  const cartItemIds = new Set(detail.items.map((item) => item.worksheetId));
-  const buttons = Array.from(document.querySelectorAll(".js-add-to-cart[data-id]"));
-  for (const button of buttons) {
-    const wsIdStr = button.getAttribute("data-id");
-    if (!wsIdStr)
-      continue;
-    const wsId = Number.parseInt(wsIdStr, 10);
-    if (Number.isNaN(wsId))
-      continue;
-    const isInCart = cartItemIds.has(wsId);
-    if (isInCart) {
-      setAddedState(button);
-    } else {
-      setDefaultState(button);
-    }
-  }
-}
-function flashElement(el2) {
-  try {
-    el2.animate(
-      [{ transform: "scale(1)" }, { transform: "scale(1.04)" }, { transform: "scale(1)" }],
-      { duration: 220 }
-    );
-  } catch {
-  }
-}
-function appendProductCardTo(ws2, container) {
-  const card = createProductCard(ws2);
-  container.appendChild(card);
-}
-EventBus.on("cart:updated" /* CART_UPDATED */, (detail) => {
-  if (detail instanceof CartUpdatedDetail) {
-    updateAllProductButtons(detail);
-  }
-});
-
 // ui/cartView.ts
 var cartModal = null;
 var savedScrollPosition = 0;
-var unsubscribeCartUpdated = null;
 function openCartModal() {
   console.log("openCartModal");
   savedScrollPosition = window.scrollY || document.documentElement.scrollTop;
@@ -8081,7 +7927,6 @@ function openCartModal() {
     const listEl = modal.querySelector("#cart-list");
     if (listEl)
       listEl.addEventListener("click", onListClick);
-    unsubscribeCartUpdated = EventBus.on("cart:updated" /* CART_UPDATED */, () => renderCart());
     renderCart();
   }).catch((err) => {
     console.error("Failed to load cart:", err);
@@ -8096,13 +7941,6 @@ function closeCartModal() {
     }
     document.body.style.overflow = "";
     return;
-  }
-  if (unsubscribeCartUpdated) {
-    try {
-      unsubscribeCartUpdated();
-    } catch {
-    }
-    unsubscribeCartUpdated = null;
   }
   try {
     cartModal.removeEventListener("click", onModalClick, { capture: true });
@@ -8216,6 +8054,11 @@ function renderCart() {
     list.appendChild(li2);
   });
 }
+function renderCartIfModalOpen() {
+  if (!cartModal)
+    return;
+  renderCart();
+}
 function escapeHtml(s) {
   return s.replace(/[&<>"']/g, (m) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[m]);
 }
@@ -8224,6 +8067,311 @@ window.addEventListener("popstate", function(_e2) {
     closeCartModal();
   }
 });
+
+// ui/headerEffects.ts
+function dropHeaderForAMoment() {
+  const headerElement = document.querySelector('[data-module-header="header"]') || document.querySelector("header");
+  if (!headerElement) {
+    console.warn("Header element not found");
+    return;
+  }
+  const wasAlreadyVisible = !headerElement.classList.contains("-isHidden");
+  headerElement.classList.remove("-isHidden");
+  const initialScrollY = window.scrollY;
+  const initialUrl = window.location.href;
+  let wasHiddenManually = false;
+  const observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      if (mutation.type === "attributes" && mutation.attributeName === "class") {
+        if (headerElement.classList.contains("-isHidden")) {
+          wasHiddenManually = true;
+        }
+      }
+    });
+  });
+  observer.observe(headerElement, {
+    attributes: true,
+    attributeFilter: ["class"]
+  });
+  const timeoutId = window.setTimeout(() => {
+    observer.disconnect();
+    const currentUrl = window.location.href;
+    const urlChanged = currentUrl !== initialUrl;
+    const currentScrollY = window.scrollY;
+    const scrollDidNotGoUp = currentScrollY >= initialScrollY;
+    if (scrollDidNotGoUp && !wasHiddenManually && !wasAlreadyVisible && !urlChanged) {
+      headerElement.classList.add("-isHidden");
+    }
+  }, HEADER_HIDE_DELAY_MS);
+  return {
+    cancel: () => {
+      clearTimeout(timeoutId);
+      observer.disconnect();
+    }
+  };
+}
+
+// ui/cartEvents.ts
+var HEADER_SELECTOR = '[data-module-header="header"]';
+var HEADER_HIDE_DELAY_MS = 1500;
+var HEADER_DROP_DURATION_MS = 400;
+var CART_COUNTER_ID = "cart-counter";
+var CART_BUBBLE_SVG_ID = "cart-bubble-svg";
+var unsubscribeCartUpdated = null;
+var lastCartCount = 0;
+var hasSyncedCartBadge = false;
+var bubbleAnimation = null;
+function registerCartEvents() {
+  if (unsubscribeCartUpdated) {
+    return;
+  }
+  unsubscribeCartUpdated = EventBus.on("cart:updated" /* CART_UPDATED */, (detail) => {
+    if (!(detail instanceof CartUpdatedDetail)) {
+      return;
+    }
+    updateAllProductButtons(detail);
+    renderCartIfModalOpen();
+    if (detail.justAdded) {
+      const headerElement = document.querySelector(HEADER_SELECTOR);
+      const headerWasHidden = headerElement?.classList.contains("-isHidden") ?? false;
+      console.log(`cartEvents.ts: headerWasHidden = ${headerWasHidden}, headerElement =`, headerElement);
+      console.log(`cartEvents.ts: headerElement.classList = ${Array.from(headerElement?.classList ?? []).join(", ")}`);
+      dropHeaderForAMoment();
+      if (headerWasHidden) {
+        window.setTimeout(refreshCartBadge, HEADER_DROP_DURATION_MS);
+      } else {
+        refreshCartBadge();
+      }
+    } else {
+      refreshCartBadge();
+    }
+  });
+}
+function handleAlreadyAddedClick(button) {
+  flashElement(button);
+}
+function drawUiAddedToCart(button, added) {
+  setAddedState(button);
+  if (!added) {
+    flashElement(button);
+    return;
+  }
+}
+function handleAddToCartError(button, err) {
+  console.error("add to cart failed", err);
+  setDefaultState(button);
+  alert("\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u0434\u043E\u0431\u0430\u0432\u0438\u0442\u044C \u0442\u043E\u0432\u0430\u0440 \u0432 \u043A\u043E\u0440\u0437\u0438\u043D\u0443. \u041F\u043E\u0432\u0442\u043E\u0440\u0438\u0442\u0435 \u043F\u043E\u043F\u044B\u0442\u043A\u0443.");
+}
+function setAddedState(button) {
+  const svg = button.querySelector("svg");
+  const svgHtml = svg ? svg.outerHTML : "";
+  button.classList.remove("-secondary");
+  if (!button.classList.contains("-tertiary"))
+    button.classList.add("-tertiary");
+  button.setAttribute("aria-pressed", "true");
+  button.setAttribute("aria-disabled", "true");
+  button.style.pointerEvents = "none";
+  if (svgHtml) {
+    button.innerHTML = `${svgHtml}&nbsp;\u0414\u043E\u0431\u0430\u0432\u043B\u0435\u043D\u043E`;
+  } else {
+    button.textContent = "\u0414\u043E\u0431\u0430\u0432\u043B\u0435\u043D\u043E";
+  }
+}
+function setDefaultState(button) {
+  const svg = button.querySelector("svg");
+  const svgHtml = svg ? svg.outerHTML : "";
+  button.classList.remove("-tertiary");
+  if (!button.classList.contains("-secondary"))
+    button.classList.add("-secondary");
+  button.removeAttribute("aria-pressed");
+  button.removeAttribute("aria-disabled");
+  button.style.pointerEvents = "";
+  if (svgHtml) {
+    button.innerHTML = `${svgHtml}&nbsp;\u0412&nbsp;\u043A\u043E\u0440\u0437\u0438\u043D\u0443`;
+  } else {
+    button.textContent = "\u0412 \u043A\u043E\u0440\u0437\u0438\u043D\u0443";
+  }
+}
+function btnHasAddedState(button) {
+  return button.classList.contains("-tertiary") || button.getAttribute("aria-disabled") === "true";
+}
+function flashElement(el2) {
+  try {
+    el2.animate(
+      [{ transform: "scale(1)" }, { transform: "scale(1.04)" }, { transform: "scale(1)" }],
+      { duration: 220 }
+    );
+  } catch {
+  }
+}
+function refreshCartBadge() {
+  console.log("cartEvents.ts: refreshCartBadge");
+  const count = cartController_default.getItems().length;
+  const counter = document.getElementById(CART_COUNTER_ID);
+  if (counter) {
+    counter.textContent = String(count);
+  }
+  updateBubbleVisibility(count);
+  lastCartCount = count;
+  hasSyncedCartBadge = true;
+}
+function animateCartBubble() {
+  const bubbleSvg = getBubbleElement();
+  if (!bubbleSvg || typeof bubbleSvg.animate !== "function") {
+    return;
+  }
+  bubbleSvg.style.transformOrigin = "left center";
+  bubbleSvg.style.willChange = "transform, visibility";
+  if (bubbleAnimation) {
+    bubbleAnimation.cancel();
+  }
+  bubbleSvg.style.visibility = "visible";
+  bubbleAnimation = bubbleSvg.animate(
+    [
+      { transform: "scale(0)" },
+      { transform: "scale(1.3)", offset: 0.75 },
+      { transform: "scale(1)" }
+    ],
+    {
+      duration: 1e3,
+      easing: "cubic-bezier(0.35, 1.1, 0.36, 1)",
+      fill: "forwards"
+    }
+  );
+  const finishPromise = bubbleAnimation.finished;
+  if (finishPromise) {
+    finishPromise.then(() => {
+      bubbleAnimation = null;
+    });
+  } else {
+    bubbleAnimation = null;
+  }
+}
+function updateBubbleVisibility(count) {
+  const shouldAnimate = hasSyncedCartBadge && lastCartCount === 0 && count > 0;
+  if (shouldAnimate) {
+    animateCartBubble();
+    return;
+  }
+  const bubbleSvg = getBubbleElement();
+  if (!bubbleSvg) {
+    console.warn("cartEvents.ts: bubbleSvg not found");
+  } else if (count === 0) {
+    cancelBubbleAnimation();
+    bubbleSvg.style.visibility = "hidden";
+  } else {
+    cancelBubbleAnimation();
+    bubbleSvg.style.visibility = "visible";
+  }
+}
+function getBubbleElement() {
+  return document.getElementById(CART_BUBBLE_SVG_ID);
+}
+function cancelBubbleAnimation() {
+  if (bubbleAnimation) {
+    bubbleAnimation.cancel();
+    bubbleAnimation = null;
+  }
+}
+function updateAllProductButtons(detail) {
+  const cartItemIds = new Set(detail.items.map((item) => item.worksheetId));
+  const buttons = Array.from(document.querySelectorAll(".js-add-to-cart[data-id]"));
+  for (const button of buttons) {
+    const wsIdStr = button.getAttribute("data-id");
+    if (!wsIdStr)
+      continue;
+    const wsId = Number.parseInt(wsIdStr, 10);
+    if (Number.isNaN(wsId))
+      continue;
+    const isInCart = cartItemIds.has(wsId);
+    if (isInCart) {
+      setAddedState(button);
+    } else {
+      setDefaultState(button);
+    }
+  }
+}
+
+// ui/productCard.ts
+function createProductCard(ws2) {
+  const productLink = `./product?id=${ws2.id}`;
+  const outer = document.createElement("a");
+  outer.className = "col mb-5";
+  outer.href = productLink;
+  outer.setAttribute("aria-label", `\u041F\u0435\u0440\u0435\u0439\u0442\u0438 \u043A \u0442\u043E\u0432\u0430\u0440\u0443 ${ws2.name}`);
+  outer.dataset.barbaTrigger = "catalog-card";
+  const card = document.createElement("div");
+  card.className = "card h-100 | -radius";
+  card.setAttribute("data-id", String(ws2.id));
+  const img = document.createElement("img");
+  img.className = "card-img-top";
+  img.src = ws2.previewUrl;
+  console.log("productCard: img.src:", img.src);
+  img.alt = ws2.name;
+  const body = document.createElement("div");
+  body.className = "card-body p-4";
+  const bodyInner = document.createElement("div");
+  bodyInner.className = "text-center";
+  const title = document.createElement("h5");
+  title.className = "tx-xs";
+  title.textContent = ws2.name;
+  const priceEl = document.createElement("div");
+  priceEl.innerText = formatPrice(ws2.priceKopecks);
+  bodyInner.appendChild(title);
+  bodyInner.appendChild(priceEl);
+  body.appendChild(bodyInner);
+  const footer = document.createElement("div");
+  footer.className = "card-footer p-4 pt-0 border-top-0 bg-transparent";
+  const footerInner = document.createElement("div");
+  footerInner.className = "text-center";
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.className = "a-social | a-button -secondary js-add-to-cart";
+  btn.setAttribute("role", "button");
+  btn.setAttribute("data-id", String(ws2.id));
+  btn.setAttribute("aria-label", `Add ${ws2.name} to cart`);
+  btn.style.cursor = "pointer";
+  btn.innerHTML = `<svg aria-hidden="true" class="a-svg" focusable="false"><use href="#icon-cart"></use></svg>&nbsp;\u0412&nbsp;\u043A\u043E\u0440\u0437\u0438\u043D\u0443`;
+  footerInner.appendChild(btn);
+  footer.appendChild(footerInner);
+  card.appendChild(img);
+  card.appendChild(body);
+  card.appendChild(footer);
+  outer.appendChild(card);
+  const isAdded = cartController_default.has(ws2.id);
+  if (isAdded) {
+    setAddedState(btn);
+  } else {
+    setDefaultState(btn);
+  }
+  btn.addEventListener("click", async (ev) => {
+    ev.preventDefault();
+    ev.stopPropagation();
+    if (btnHasAddedState(btn)) {
+      handleAlreadyAddedClick(btn);
+      return;
+    }
+    let worksheet = ws2;
+    try {
+      if (!worksheet || typeof worksheet.id !== "number") {
+        const id = Number(btn.getAttribute("data-id"));
+        const maybe = await catalogService_default.getById(id);
+        if (!maybe)
+          throw new Error("Worksheet not found");
+        worksheet = maybe;
+      }
+      const added = cartController_default.addFromWorksheet(worksheet);
+      drawUiAddedToCart(btn, added);
+    } catch (err) {
+      handleAddToCartError(btn, err);
+    }
+  });
+  return outer;
+}
+function appendProductCardTo(ws2, container) {
+  const card = createProductCard(ws2);
+  container.appendChild(card);
+}
 
 // adapters/barbaAdapter.ts
 function rebindPage(container) {
@@ -8592,47 +8740,6 @@ function registerCatalogRenderer() {
 // index.ts
 var ONCE_ANIMATE_CLASS = "-onceAnimate";
 var LOADER_CLEANUP_TIMEOUT = 6e3;
-function dropHeaderFor2s() {
-  const headerElement = document.querySelector('[data-module-header="header"]') || document.querySelector("header");
-  if (!headerElement) {
-    console.warn("Header element not found");
-    return;
-  }
-  const wasAlreadyVisible = !headerElement.classList.contains("-isHidden");
-  headerElement.classList.remove("-isHidden");
-  const initialScrollY = window.scrollY;
-  const initialUrl = window.location.href;
-  let wasHiddenManually = false;
-  const observer = new MutationObserver((mutations) => {
-    mutations.forEach((mutation) => {
-      if (mutation.type === "attributes" && mutation.attributeName === "class") {
-        if (headerElement.classList.contains("-isHidden")) {
-          wasHiddenManually = true;
-        }
-      }
-    });
-  });
-  observer.observe(headerElement, {
-    attributes: true,
-    attributeFilter: ["class"]
-  });
-  const timeoutId = window.setTimeout(() => {
-    observer.disconnect();
-    const currentUrl = window.location.href;
-    const urlChanged = currentUrl !== initialUrl;
-    const currentScrollY = window.scrollY;
-    const scrollDidNotGoUp = currentScrollY >= initialScrollY;
-    if (scrollDidNotGoUp && !wasHiddenManually && !wasAlreadyVisible && !urlChanged) {
-      headerElement.classList.add("-isHidden");
-    }
-  }, 2e3);
-  return {
-    cancel: () => {
-      clearTimeout(timeoutId);
-      observer.disconnect();
-    }
-  };
-}
 function init() {
   console.log("index.ts: init");
   try {
@@ -8641,6 +8748,7 @@ function init() {
     console.warn("registerCatalogRenderer failed", err);
   }
   scheduleLoaderCleanup();
+  registerCartEvents();
   const catalogGrid = document.getElementById("catalog-grid");
   if (catalogGrid) {
   } else {
@@ -8649,16 +8757,7 @@ function init() {
   refreshCartBadge();
   setupCartHashRouting();
 }
-function refreshCartBadge() {
-  const count = cartController_default.getItems().length;
-  const badges = Array.from(document.querySelectorAll(".js-cart-count"));
-  for (const el2 of badges) {
-    el2.textContent = String(count);
-    el2.setAttribute("aria-label", `Cart items: ${count}`);
-  }
-}
 function setupCartHashRouting() {
-  console.log("setupCartHashRouting");
   const syncWithHash = () => {
     if (window.location.hash === "#cart") {
       openCartModal();
@@ -8725,7 +8824,5 @@ if (document.readyState === "loading") {
   init();
 }
 export {
-  dropHeaderFor2s,
-  init,
-  refreshCartBadge
+  init
 };

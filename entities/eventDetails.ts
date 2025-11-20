@@ -8,17 +8,19 @@ import { EventDetail, CartItem, PtStatus, EventNames } from './base';
  */
 export class CartUpdatedDetail extends EventDetail {
     public readonly items: CartItem[];
+    public readonly justAdded: boolean;
 
-    constructor(items: CartItem[]) {
+    constructor(items: CartItem[], justAdded: boolean) {
         super(EventNames.CART_UPDATED);
         this.items = items;
+        this.justAdded = justAdded;
     }
 
     /**
      * Сериализация детали — полезна для логирования.
      */
     override toJSON() {
-        return { event: this.event, items: this.items };
+        return { event: this.event, items: this.items, justAdded: this.justAdded };
     }
 }
 

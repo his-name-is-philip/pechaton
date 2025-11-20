@@ -1,11 +1,8 @@
 // Cart Modal API (used by ui/cartOverlay)
 import cartController from '../services/cartController';
-import { EventBus } from '../services/events';
-import { EventNames } from '../entities/base';
 
 let cartModal: HTMLElement | null = null;
 let savedScrollPosition = 0;
-let unsubscribeCartUpdated: (() => void) | null = null;
 
 export function openCartModal(): void {
     console.log('openCartModal');
@@ -41,9 +38,6 @@ export function openCartModal(): void {
             const listEl = modal.querySelector('#cart-list');
             if (listEl) listEl.addEventListener('click', onListClick);
 
-            // Subscribe to cart updates to re-render
-            unsubscribeCartUpdated = EventBus.on(EventNames.CART_UPDATED, () => renderCart());
-
             // Initial render
             renderCart();
         })
@@ -64,11 +58,6 @@ export function closeCartModal(): void {
         // Restore body scroll
         document.body.style.overflow = '';
         return;
-    }
-
-    if (unsubscribeCartUpdated) {
-        try { unsubscribeCartUpdated(); } catch { /* ignore */ }
-        unsubscribeCartUpdated = null;
     }
 
     // Detach listeners
@@ -199,6 +188,12 @@ function renderCart(): void {
 </div>`;
         list.appendChild(li);
     });
+}
+
+// todo simplify
+export function renderCartIfModalOpen(): void {
+    if (!cartModal) return;
+    renderCart();
 }
 
 function escapeHtml(s: string): string {

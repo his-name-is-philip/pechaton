@@ -29,6 +29,7 @@ export enum EventNames {
 
 /**
  * Описание элемента корзины.
+ * todo зачем это здесь, если есть Worksheet
  */
 export type CartItem = {
     worksheetId: number;
