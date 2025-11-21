@@ -78,8 +78,7 @@ export function createProductCard(ws: Worksheet): HTMLElement {
     img.src = ws.previewUrl;
     console.log('productCard: img.src:', img.src);
     img.alt = ws.name;
-    // todo
-    // img.loading = 'lazy';
+    img.loading = 'lazy';
 
     // Card body
     const body = document.createElement('div');

@@ -3,7 +3,7 @@ import CartModel, { CartSnapshot } from '../entities/cartModel';
 import storageAdapter from '../adapters/storageAdapter';
 import { EventBus } from './events';
 import { CartUpdatedDetail, CheckoutProgressDetail } from '../entities/eventDetails';
-import { CartItem } from '../entities/worksheet';
+import { CartItem, worksheetToCartItem as wsToCartItem } from '../entities/worksheet';
 import { Worksheet } from '../entities/worksheet';
 
 const CART_KEY = 'cart_v1';
@@ -25,12 +25,15 @@ class CartController {
      */
     private initFromStorage(): void {
         const snap = storageAdapter.get<CartSnapshot>(CART_KEY);
+        let items: CartItem[] | null = null;
         if (snap) {
             this.model.loadSnapshot(snap);
+            items = snap.items;
+        } else {
+            items = this.model.getItems();
         }
         // Emit strongly-typed event with a class instance
-        const items = this.model.getItems();
-        EventBus.emit(new CartUpdatedDetail(items, false));
+        EventBus.emit(new CartUpdatedDetail(items, items.length > 0));
     }
 
     /**
@@ -48,16 +51,11 @@ class CartController {
      */
     addFromWorksheet(ws: Worksheet): boolean {
         // todo move to cartEvents.ts
-        const success = this.model.add({
-            worksheetId: ws.id,
-            name: ws.name,
-            priceKopecks: ws.priceKopecks
-        });
+        const success = this.model.add(wsToCartItem(ws));
         if (success) {
             this.persist();
             EventBus.emit(new CartUpdatedDetail(this.model.getItems(), true));
-        }
-        if (!success) {
+        } else {
             console.log('addFromWorksheet: item already existed in cart');
         }
         return success;
@@ -74,8 +72,7 @@ class CartController {
         if (success) {
             this.persist();
             EventBus.emit(new CartUpdatedDetail(this.model.getItems(), false));
-        }
-        if (!success) {
+        } else {
             console.log('removeFromWorksheet: item not found in cart');
         }
         return success;

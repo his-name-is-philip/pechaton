@@ -24,6 +24,7 @@ export function rebindPage(container?: ParentNode) {
     addButtons.forEach(btn => {
         // remove previous listener marker
         if ((btn as any).__add_to_cart_bound) return; // already bound
+        // todo слушатель вообще не тут должен быть. его нужно перенести в productCard.ts
         btn.addEventListener('click', async (ev) => {
             ev.preventDefault();
             const idAttr = btn.getAttribute('data-id');
