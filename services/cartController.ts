@@ -3,7 +3,7 @@ import CartModel, { CartSnapshot } from '../entities/cartModel';
 import storageAdapter from '../adapters/storageAdapter';
 import { EventBus } from './events';
 import { CartUpdatedDetail, CheckoutProgressDetail } from '../entities/eventDetails';
-import { CartItem } from '../entities/base';
+import { CartItem } from '../entities/worksheet';
 import { Worksheet } from '../entities/worksheet';
 
 const CART_KEY = 'cart_v1';

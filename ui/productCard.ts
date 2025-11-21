@@ -5,11 +5,51 @@ import catalogService from '../services/catalogService';
 import {
     btnHasAddedState,
     handleAddToCartError,
-    drawUiAddedToCart,
-    handleAlreadyAddedClick,
-    setAddedState,
-    setDefaultState
+    handleAlreadyAddedClick
 } from './cartEvents';
+
+type CartButton = HTMLElement;
+
+export function setAddedState(button: CartButton): void {
+    const svg = button.querySelector('svg');
+    const svgHtml = svg ? svg.outerHTML : '';
+    button.classList.remove('-secondary');
+    if (!button.classList.contains('-tertiary')) button.classList.add('-tertiary');
+    button.setAttribute('aria-pressed', 'true');
+    button.setAttribute('aria-disabled', 'true');
+    button.style.pointerEvents = 'none';
+    if (svgHtml) {
+        button.innerHTML = `${svgHtml}&nbsp;Добавлено`;
+    } else {
+        button.textContent = 'Добавлено';
+    }
+}
+
+export function setDefaultState(button: CartButton): void {
+    const svg = button.querySelector('svg');
+    const svgHtml = svg ? svg.outerHTML : '';
+    button.classList.remove('-tertiary');
+    if (!button.classList.contains('-secondary')) button.classList.add('-secondary');
+    button.removeAttribute('aria-pressed');
+    button.removeAttribute('aria-disabled');
+    button.style.pointerEvents = '';
+    if (svgHtml) {
+        button.innerHTML = `${svgHtml}&nbsp;В&nbsp;корзину`;
+    } else {
+        button.textContent = 'В корзину';
+    }
+}
+
+export function flashElement(el: CartButton): void {
+    try {
+        el.animate(
+            [{ transform: 'scale(1)' }, { transform: 'scale(1.04)' }, { transform: 'scale(1)' }],
+            { duration: 220 }
+        );
+    } catch {
+        // no animation support
+    }
+}
 
 /**
  * Create a product card element for the catalog grid.
@@ -108,7 +148,10 @@ export function createProductCard(ws: Worksheet): HTMLElement {
             }
 
             const added = cartController.addFromWorksheet(worksheet);
-            drawUiAddedToCart(btn, added);
+            setAddedState(btn);
+            if (!added) {
+                flashElement(btn);
+            }
             // cartController will emit cart updated and persist via storageAdapter
         } catch (err) {
             handleAddToCartError(btn, err);

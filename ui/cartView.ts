@@ -134,7 +134,7 @@ function onListClick(e: Event): void {
     }
 }
 
-function renderCart(): void {
+export function renderCart(): void {
     if (!cartModal) return;
     const list = cartModal.querySelector('#cart-list') as HTMLElement | null;
     const empty = cartModal.querySelector('#empty-cart-state') as HTMLElement | null;
@@ -190,11 +190,6 @@ function renderCart(): void {
     });
 }
 
-// todo simplify
-export function renderCartIfModalOpen(): void {
-    if (!cartModal) return;
-    renderCart();
-}
 
 function escapeHtml(s: string): string {
     return s.replace(/[&<>"']/g, (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]!));

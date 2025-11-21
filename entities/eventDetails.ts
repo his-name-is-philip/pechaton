@@ -1,6 +1,7 @@
 // src/entities/eventDetails.ts
 
-import { EventDetail, CartItem, PtStatus, EventNames } from './base';
+import { EventDetail, PtStatus, EventName } from './base';
+import { CartItem } from './worksheet';
 
 /**
  * CartUpdatedDetail — деталь события обновления корзины.
@@ -11,7 +12,7 @@ export class CartUpdatedDetail extends EventDetail {
     public readonly justAdded: boolean;
 
     constructor(items: CartItem[], justAdded: boolean) {
-        super(EventNames.CART_UPDATED);
+        super(EventName.CART_UPDATED);
         this.items = items;
         this.justAdded = justAdded;
     }
@@ -32,7 +33,7 @@ export class CheckoutStartDetail extends EventDetail {
     public readonly orderId: number;
 
     constructor(orderId: number) {
-        super(EventNames.CHECKOUT_START);
+        super(EventName.CHECKOUT_START);
         this.orderId = orderId;
     }
 
@@ -48,7 +49,7 @@ export class CheckoutProgressDetail extends EventDetail {
     public readonly inProgress: boolean;
 
     constructor(inProgress: boolean) {
-        super(EventNames.CHECKOUT_PROGRESS);
+        super(EventName.CHECKOUT_PROGRESS);
         this.inProgress = inProgress;
     }
 
@@ -67,7 +68,7 @@ export class CheckoutStatusDetail extends EventDetail {
     public readonly message?: string | undefined;
 
     constructor(orderId: number, status: PtStatus, message?: string) {
-        super(EventNames.CHECKOUT_STATUS);
+        super(EventName.CHECKOUT_STATUS);
         this.orderId = orderId;
         this.status = status;
         this.message = message;
@@ -85,7 +86,7 @@ export class CheckoutSuccessDetail extends EventDetail {
     public readonly orderId: number;
 
     constructor(orderId: number) {
-        super(EventNames.CHECKOUT_SUCCESS);
+        super(EventName.CHECKOUT_SUCCESS);
         this.orderId = orderId;
     }
 
@@ -102,7 +103,7 @@ export class CheckoutFailedDetail extends EventDetail {
     public readonly message?: string | undefined;
 
     constructor(orderId: number, message?: string) {
-        super(EventNames.CHECKOUT_FAILED);
+        super(EventName.CHECKOUT_FAILED);
         this.orderId = orderId;
         this.message = message;
     }

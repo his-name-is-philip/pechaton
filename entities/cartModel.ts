@@ -1,7 +1,8 @@
 // src/entities/cartModel.ts
 
-import { CartItem } from "./base";
+import { CartItem, worksheetToCartItem } from "./worksheet";
 
+// to store cart state in cookies
 export interface CartSnapshot {
     version: number;
     items: CartItem[];
@@ -54,9 +55,12 @@ export default class CartModel {
         if (!Number.isInteger(id) || id <= 0) {
             throw new Error('Invalid worksheetId');
         }
-        if (this.items.has(id)) return false;
-        this.items.set(id, { worksheetId: id, name: String(item.name), priceKopecks: Number(item.priceKopecks) });
-        return true;
+        if (!this.items.has(id)) {
+            this.items.set(id, item);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -102,11 +106,11 @@ export default class CartModel {
      * Этот метод НЕ выполняет побочных эффектов (не записывает в storage, не эмитит событий).
      */
     loadSnapshot(snapshot: CartSnapshot | null): void {
-        this.items.clear();
-        if (!snapshot || !Array.isArray(snapshot.items)) return;
-        for (const it of snapshot.items) {
-            if (it && Number.isInteger(it.worksheetId) && it.worksheetId > 0) {
-                this.items.set(it.worksheetId, { worksheetId: it.worksheetId, name: it.name, priceKopecks: it.priceKopecks });
+        if (snapshot && Array.isArray(snapshot.items)) {
+            this.items.clear();
+            for (const it of snapshot.items) {
+                if (it && Number.isInteger(it.worksheetId) && it.worksheetId > 0) 
+                    this.items.set(it.worksheetId, it);
             }
         }
     }

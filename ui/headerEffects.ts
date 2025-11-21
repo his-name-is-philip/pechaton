@@ -1,6 +1,5 @@
 import { HEADER_HIDE_DELAY_MS } from './cartEvents';
 
-//todo проверь, что происходит с -isHidden. в т.ч. перезагрузи страницу, пока хэдер опущен 
 export function dropHeaderForAMoment(): { cancel: () => void } | void {
     const headerElement = document.querySelector('[data-module-header="header"]') || document.querySelector('header');
     if (!headerElement) {
@@ -18,6 +17,7 @@ export function dropHeaderForAMoment(): { cancel: () => void } | void {
     const initialUrl = window.location.href;
     let wasHiddenManually = false;
 
+    //todo2 чекни че по производительности. мб можно сделать через scroll event
     const observer = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
             if (mutation.type === 'attributes' && mutation.attributeName === 'class') {

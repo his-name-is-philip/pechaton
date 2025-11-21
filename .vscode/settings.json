@@ -13,7 +13,7 @@
         "assets/barba-shim.d.ts": true,
         "assets/anime-shim.d.ts": true,
         "legacy/": true,
-        "entities/": true,
+        // "entities/": true,
         "README.md": true,
     }
 }

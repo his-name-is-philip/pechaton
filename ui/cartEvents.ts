@@ -1,9 +1,10 @@
 import { EventBus } from '../services/events';
-import { EventNames } from '../entities/base';
+import { EventName } from '../entities/base';
 import { CartUpdatedDetail } from '../entities/eventDetails';
 import cartController from '../services/cartController';
-import { renderCartIfModalOpen } from './cartView';
+import { renderCart } from './cartView';
 import { dropHeaderForAMoment } from './headerEffects';
+import { setAddedState, setDefaultState, flashElement } from './productCard';
 
 type CartButton = HTMLElement;
 
@@ -19,43 +20,36 @@ let hasSyncedCartBadge = false;
 let bubbleAnimation: Animation | null = null;
 
 export function registerCartEvents(): void {
-    if (unsubscribeCartUpdated) {
+    if (!unsubscribeCartUpdated) {
+        unsubscribeCartUpdated = EventBus.on(EventName.CART_UPDATED, onCartUpdated);
+    }
+}
+
+function onCartUpdated(detail: unknown): void {
+    if (!(detail instanceof CartUpdatedDetail)) {
         return;
     }
-    unsubscribeCartUpdated = EventBus.on(EventNames.CART_UPDATED, (detail) => {
-        if (!(detail instanceof CartUpdatedDetail)) {
-            return;
-        }
-        updateAllProductButtons(detail);
-        renderCartIfModalOpen();
-        if (detail.justAdded) {
-            const headerElement = document.querySelector<HTMLElement>(HEADER_SELECTOR);
-            const headerWasHidden = headerElement?.classList.contains('-isHidden') ?? false;
-            console.log(`cartEvents.ts: headerWasHidden = ${headerWasHidden}, headerElement =`, headerElement as HTMLElement);
-            console.log(`cartEvents.ts: headerElement.classList = ${Array.from(headerElement?.classList ?? []).join(', ')}`);
-            dropHeaderForAMoment();
+    updateAllProductButtons(detail);
+    renderCart();
+    if (detail.justAdded) {
+        const headerElement = document.querySelector<HTMLElement>(HEADER_SELECTOR);
+        const headerWasHidden = headerElement?.classList.contains('-isHidden') ?? false;
+        console.log(`cartEvents.ts: headerWasHidden = ${headerWasHidden}, headerElement =`, headerElement as HTMLElement);
+        console.log(`cartEvents.ts: headerElement.classList = ${Array.from(headerElement?.classList ?? []).join(', ')}`);
+        dropHeaderForAMoment();
 
-            if (headerWasHidden) {
-                window.setTimeout(refreshCartBadge, HEADER_DROP_DURATION_MS);
-            } else {
-                refreshCartBadge();
-            }
+        if (headerWasHidden) {
+            window.setTimeout(refreshCartBadge, HEADER_DROP_DURATION_MS);
         } else {
             refreshCartBadge();
         }
-    });
+    } else {
+        refreshCartBadge();
+    }
 }
 
 export function handleAlreadyAddedClick(button: CartButton): void {
     flashElement(button);
-}
-
-export function drawUiAddedToCart(button: CartButton, added: boolean): void {
-    setAddedState(button);
-    if (!added) {
-        flashElement(button);
-        return;
-    }
 }
 
 export function handleAddToCartError(button: CartButton, err: unknown): void {
@@ -64,49 +58,8 @@ export function handleAddToCartError(button: CartButton, err: unknown): void {
     alert('Не удалось добавить товар в корзину. Повторите попытку.');
 }
 
-export function setAddedState(button: CartButton): void {
-    const svg = button.querySelector('svg');
-    const svgHtml = svg ? svg.outerHTML : '';
-    button.classList.remove('-secondary');
-    if (!button.classList.contains('-tertiary')) button.classList.add('-tertiary');
-    button.setAttribute('aria-pressed', 'true');
-    button.setAttribute('aria-disabled', 'true');
-    button.style.pointerEvents = 'none';
-    if (svgHtml) {
-        button.innerHTML = `${svgHtml}&nbsp;Добавлено`;
-    } else {
-        button.textContent = 'Добавлено';
-    }
-}
-
-export function setDefaultState(button: CartButton): void {
-    const svg = button.querySelector('svg');
-    const svgHtml = svg ? svg.outerHTML : '';
-    button.classList.remove('-tertiary');
-    if (!button.classList.contains('-secondary')) button.classList.add('-secondary');
-    button.removeAttribute('aria-pressed');
-    button.removeAttribute('aria-disabled');
-    button.style.pointerEvents = '';
-    if (svgHtml) {
-        button.innerHTML = `${svgHtml}&nbsp;В&nbsp;корзину`;
-    } else {
-        button.textContent = 'В корзину';
-    }
-}
-
 export function btnHasAddedState(button: CartButton): boolean {
     return button.classList.contains('-tertiary') || button.getAttribute('aria-disabled') === 'true';
-}
-
-export function flashElement(el: CartButton): void {
-    try {
-        el.animate(
-            [{ transform: 'scale(1)' }, { transform: 'scale(1.04)' }, { transform: 'scale(1)' }],
-            { duration: 220 }
-        );
-    } catch {
-        // no animation support
-    }
 }
 
 export function refreshCartBadge(): void {

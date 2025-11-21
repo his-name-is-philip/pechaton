@@ -7489,10 +7489,12 @@ var CartModel = class {
     if (!Number.isInteger(id) || id <= 0) {
       throw new Error("Invalid worksheetId");
     }
-    if (this.items.has(id))
+    if (!this.items.has(id)) {
+      this.items.set(id, item);
+      return true;
+    } else {
       return false;
-    this.items.set(id, { worksheetId: id, name: String(item.name), priceKopecks: Number(item.priceKopecks) });
-    return true;
+    }
   }
   /**
    * Удаляет товар по worksheetId. Возвращает true, если товар был удалён.
@@ -7533,12 +7535,11 @@ var CartModel = class {
    * Этот метод НЕ выполняет побочных эффектов (не записывает в storage, не эмитит событий).
    */
   loadSnapshot(snapshot) {
-    this.items.clear();
-    if (!snapshot || !Array.isArray(snapshot.items))
-      return;
-    for (const it2 of snapshot.items) {
-      if (it2 && Number.isInteger(it2.worksheetId) && it2.worksheetId > 0) {
-        this.items.set(it2.worksheetId, { worksheetId: it2.worksheetId, name: it2.name, priceKopecks: it2.priceKopecks });
+    if (snapshot && Array.isArray(snapshot.items)) {
+      this.items.clear();
+      for (const it2 of snapshot.items) {
+        if (it2 && Number.isInteger(it2.worksheetId) && it2.worksheetId > 0)
+          this.items.set(it2.worksheetId, it2);
       }
     }
   }
@@ -7732,7 +7733,7 @@ var EventBus = class {
   /**
    * Subscribe to an event.
    *
-   * @param eventName - one of EventNames enum values.
+   * @param eventName - one of EventName enum values.
    * @param listener - callback that receives the typed detail instance. At runtime a guard
    * checks that the detail matches the expected class before calling the listener.
    * @returns unsubscribe function.
@@ -7781,7 +7782,7 @@ var EventBus = class {
   /**
    * Unregister a previously registered EventListener (low-level).
    *
-   * @param eventName - string event name (prefer EventNames enum when calling).
+   * @param eventName - string event name (prefer EventName enum when calling).
    * @param listener - actual EventListener to remove.
    *
    * Note: prefer the unsubscribe returned by on(...) instead of calling off directly.
@@ -8054,11 +8055,6 @@ function renderCart() {
     list.appendChild(li2);
   });
 }
-function renderCartIfModalOpen() {
-  if (!cartModal)
-    return;
-  renderCart();
-}
 function escapeHtml(s) {
   return s.replace(/[&<>"']/g, (m) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[m]);
 }
@@ -8122,87 +8118,41 @@ var lastCartCount = 0;
 var hasSyncedCartBadge = false;
 var bubbleAnimation = null;
 function registerCartEvents() {
-  if (unsubscribeCartUpdated) {
+  if (!unsubscribeCartUpdated) {
+    unsubscribeCartUpdated = EventBus.on("cart:updated" /* CART_UPDATED */, onCartUpdated);
+  }
+}
+function onCartUpdated(detail) {
+  if (!(detail instanceof CartUpdatedDetail)) {
     return;
   }
-  unsubscribeCartUpdated = EventBus.on("cart:updated" /* CART_UPDATED */, (detail) => {
-    if (!(detail instanceof CartUpdatedDetail)) {
-      return;
-    }
-    updateAllProductButtons(detail);
-    renderCartIfModalOpen();
-    if (detail.justAdded) {
-      const headerElement = document.querySelector(HEADER_SELECTOR);
-      const headerWasHidden = headerElement?.classList.contains("-isHidden") ?? false;
-      console.log(`cartEvents.ts: headerWasHidden = ${headerWasHidden}, headerElement =`, headerElement);
-      console.log(`cartEvents.ts: headerElement.classList = ${Array.from(headerElement?.classList ?? []).join(", ")}`);
-      dropHeaderForAMoment();
-      if (headerWasHidden) {
-        window.setTimeout(refreshCartBadge, HEADER_DROP_DURATION_MS);
-      } else {
-        refreshCartBadge();
-      }
+  updateAllProductButtons(detail);
+  renderCart();
+  if (detail.justAdded) {
+    const headerElement = document.querySelector(HEADER_SELECTOR);
+    const headerWasHidden = headerElement?.classList.contains("-isHidden") ?? false;
+    console.log(`cartEvents.ts: headerWasHidden = ${headerWasHidden}, headerElement =`, headerElement);
+    console.log(`cartEvents.ts: headerElement.classList = ${Array.from(headerElement?.classList ?? []).join(", ")}`);
+    dropHeaderForAMoment();
+    if (headerWasHidden) {
+      window.setTimeout(refreshCartBadge, HEADER_DROP_DURATION_MS);
     } else {
       refreshCartBadge();
     }
-  });
+  } else {
+    refreshCartBadge();
+  }
 }
 function handleAlreadyAddedClick(button) {
   flashElement(button);
-}
-function drawUiAddedToCart(button, added) {
-  setAddedState(button);
-  if (!added) {
-    flashElement(button);
-    return;
-  }
 }
 function handleAddToCartError(button, err) {
   console.error("add to cart failed", err);
   setDefaultState(button);
   alert("\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u0434\u043E\u0431\u0430\u0432\u0438\u0442\u044C \u0442\u043E\u0432\u0430\u0440 \u0432 \u043A\u043E\u0440\u0437\u0438\u043D\u0443. \u041F\u043E\u0432\u0442\u043E\u0440\u0438\u0442\u0435 \u043F\u043E\u043F\u044B\u0442\u043A\u0443.");
 }
-function setAddedState(button) {
-  const svg = button.querySelector("svg");
-  const svgHtml = svg ? svg.outerHTML : "";
-  button.classList.remove("-secondary");
-  if (!button.classList.contains("-tertiary"))
-    button.classList.add("-tertiary");
-  button.setAttribute("aria-pressed", "true");
-  button.setAttribute("aria-disabled", "true");
-  button.style.pointerEvents = "none";
-  if (svgHtml) {
-    button.innerHTML = `${svgHtml}&nbsp;\u0414\u043E\u0431\u0430\u0432\u043B\u0435\u043D\u043E`;
-  } else {
-    button.textContent = "\u0414\u043E\u0431\u0430\u0432\u043B\u0435\u043D\u043E";
-  }
-}
-function setDefaultState(button) {
-  const svg = button.querySelector("svg");
-  const svgHtml = svg ? svg.outerHTML : "";
-  button.classList.remove("-tertiary");
-  if (!button.classList.contains("-secondary"))
-    button.classList.add("-secondary");
-  button.removeAttribute("aria-pressed");
-  button.removeAttribute("aria-disabled");
-  button.style.pointerEvents = "";
-  if (svgHtml) {
-    button.innerHTML = `${svgHtml}&nbsp;\u0412&nbsp;\u043A\u043E\u0440\u0437\u0438\u043D\u0443`;
-  } else {
-    button.textContent = "\u0412 \u043A\u043E\u0440\u0437\u0438\u043D\u0443";
-  }
-}
 function btnHasAddedState(button) {
   return button.classList.contains("-tertiary") || button.getAttribute("aria-disabled") === "true";
-}
-function flashElement(el2) {
-  try {
-    el2.animate(
-      [{ transform: "scale(1)" }, { transform: "scale(1.04)" }, { transform: "scale(1)" }],
-      { duration: 220 }
-    );
-  } catch {
-  }
 }
 function refreshCartBadge() {
   console.log("cartEvents.ts: refreshCartBadge");
@@ -8293,6 +8243,45 @@ function updateAllProductButtons(detail) {
 }
 
 // ui/productCard.ts
+function setAddedState(button) {
+  const svg = button.querySelector("svg");
+  const svgHtml = svg ? svg.outerHTML : "";
+  button.classList.remove("-secondary");
+  if (!button.classList.contains("-tertiary"))
+    button.classList.add("-tertiary");
+  button.setAttribute("aria-pressed", "true");
+  button.setAttribute("aria-disabled", "true");
+  button.style.pointerEvents = "none";
+  if (svgHtml) {
+    button.innerHTML = `${svgHtml}&nbsp;\u0414\u043E\u0431\u0430\u0432\u043B\u0435\u043D\u043E`;
+  } else {
+    button.textContent = "\u0414\u043E\u0431\u0430\u0432\u043B\u0435\u043D\u043E";
+  }
+}
+function setDefaultState(button) {
+  const svg = button.querySelector("svg");
+  const svgHtml = svg ? svg.outerHTML : "";
+  button.classList.remove("-tertiary");
+  if (!button.classList.contains("-secondary"))
+    button.classList.add("-secondary");
+  button.removeAttribute("aria-pressed");
+  button.removeAttribute("aria-disabled");
+  button.style.pointerEvents = "";
+  if (svgHtml) {
+    button.innerHTML = `${svgHtml}&nbsp;\u0412&nbsp;\u043A\u043E\u0440\u0437\u0438\u043D\u0443`;
+  } else {
+    button.textContent = "\u0412 \u043A\u043E\u0440\u0437\u0438\u043D\u0443";
+  }
+}
+function flashElement(el2) {
+  try {
+    el2.animate(
+      [{ transform: "scale(1)" }, { transform: "scale(1.04)" }, { transform: "scale(1)" }],
+      { duration: 220 }
+    );
+  } catch {
+  }
+}
 function createProductCard(ws2) {
   const productLink = `./product?id=${ws2.id}`;
   const outer = document.createElement("a");
@@ -8361,7 +8350,10 @@ function createProductCard(ws2) {
         worksheet = maybe;
       }
       const added = cartController_default.addFromWorksheet(worksheet);
-      drawUiAddedToCart(btn, added);
+      setAddedState(btn);
+      if (!added) {
+        flashElement(btn);
+      }
     } catch (err) {
       handleAddToCartError(btn, err);
     }
@@ -8462,13 +8454,12 @@ var CatalogService = class {
    *
    * @param id - numeric worksheet id
    * @returns Promise resolving to Worksheet or null if not found
-   * todo get rid of getAll() call here
    */
   async getById(id) {
     if (this.cache && this.cache.has(id))
       return this.cache.get(id) ?? null;
-    await this.getAll();
-    return this.cache?.get(id) ?? null;
+    const goods = await this.getAll();
+    return goods.find((ws2) => ws2.id === id) ?? null;
   }
   /**
    * Clear the in-memory catalog cache.

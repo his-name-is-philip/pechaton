@@ -1,4 +1,14 @@
 // src/entities/worksheet.ts
+
+/**
+ * Описание элемента корзины.
+ */
+export interface CartItem {
+    worksheetId: number;
+    name: string;
+    priceKopecks: number;
+}
+
 export interface WorksheetRaw {
     id: string | number;
     name: string;
@@ -77,4 +87,12 @@ export function formatPrice(kopecks: number): string {
     const rub = Math.floor(kopecks / 100);
     const kope = Math.abs(kopecks % 100);
     return `${new Intl.NumberFormat('ru-RU').format(rub)},${kope.toString().padStart(2, '0')} ₽`;
+}
+
+export function worksheetToCartItem(worksheet: Worksheet): CartItem {
+    return {
+        worksheetId: worksheet.id,
+        name: worksheet.name,
+        priceKopecks: worksheet.priceKopecks
+    };
 }

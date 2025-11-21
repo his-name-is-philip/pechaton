@@ -12,7 +12,7 @@ import {
     isCheckoutFailed
 } from '../entities/eventDetails';
 
-import { EventDetail, EventNames } from '../entities/base';
+import { EventDetail, EventName } from '../entities/base';
 
 type Listener<T extends EventDetail> = (detail: T) => void;
 
@@ -33,7 +33,7 @@ export class EventBus {
     /**
      * Subscribe to an event.
      *
-     * @param eventName - one of EventNames enum values.
+     * @param eventName - one of EventName enum values.
      * @param listener - callback that receives the typed detail instance. At runtime a guard
      * checks that the detail matches the expected class before calling the listener.
      * @returns unsubscribe function.
@@ -45,29 +45,29 @@ export class EventBus {
      *   by the wrapper. If you want to accept plain objects, implement fromJSON factory methods
      *   in detail classes and attempt reconstruction here.
      */
-    static on(eventName: EventNames, listener: (detail: EventDetailUnion) => void): () => void {
+    static on(eventName: EventName, listener: (detail: EventDetailUnion) => void): () => void {
         const wrapper = (ev: Event) => {
             const ce = ev as CustomEvent<EventDetailUnion>;
             const d = ce.detail;
 
             // runtime guards: if detail is not the expected class — ignore
             switch (eventName) {
-                case EventNames.CART_UPDATED:
+                case EventName.CART_UPDATED:
                     if (isCartUpdated(d)) listener(d);
                     break;
-                case EventNames.CHECKOUT_START:
+                case EventName.CHECKOUT_START:
                     if (isCheckoutStart(d)) listener(d);
                     break;
-                case EventNames.CHECKOUT_PROGRESS:
+                case EventName.CHECKOUT_PROGRESS:
                     if (isCheckoutProgress(d)) listener(d);
                     break;
-                case EventNames.CHECKOUT_STATUS:
+                case EventName.CHECKOUT_STATUS:
                     if (isCheckoutStatus(d)) listener(d);
                     break;
-                case EventNames.CHECKOUT_SUCCESS:
+                case EventName.CHECKOUT_SUCCESS:
                     if (isCheckoutSuccess(d)) listener(d);
                     break;
-                case EventNames.CHECKOUT_FAILED:
+                case EventName.CHECKOUT_FAILED:
                     if (isCheckoutFailed(d)) listener(d);
                     break;
             }
@@ -79,7 +79,7 @@ export class EventBus {
     /**
      * Unregister a previously registered EventListener (low-level).
      *
-     * @param eventName - string event name (prefer EventNames enum when calling).
+     * @param eventName - string event name (prefer EventName enum when calling).
      * @param listener - actual EventListener to remove.
      *
      * Note: prefer the unsubscribe returned by on(...) instead of calling off directly.

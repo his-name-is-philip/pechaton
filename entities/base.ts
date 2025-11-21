@@ -3,11 +3,11 @@
 //
 // Содержит:
 // - PtStatus — внутренний статус платежа (payment status).
-// - EventNames — единый enum для имён событий, используемых EventBus.
+// - EventName — единый enum для имён событий, используемых EventBus.
 // - CartItem / CartTotals — базовые типы для корзины (рекомендуется использовать унифицированный тип по всему проекту).
 // - EventDetail — абстрактный базовый класс для деталей событий (каждый конкретный класс-деталь наследует его).
 //
-// Примечание: EventDetail хранит event как значение EventNames — это гарантирует согласованность имён событий.
+// Примечание: EventDetail хранит event как значение EventName — это гарантирует согласованность имён событий.
 export enum PtStatus {
     PENDING = 'pending',
     PAID = 'paid',
@@ -18,7 +18,7 @@ export enum PtStatus {
  * Централизованное перечисление всех событий.
  * Используется вместо строковых литералов в деталях и EventBus.
  */
-export enum EventNames {
+export enum EventName {
     CART_UPDATED = 'cart:updated',
     CHECKOUT_START = 'cart:checkout-start',
     CHECKOUT_PROGRESS = 'cart:checkout-progress',
@@ -27,26 +27,17 @@ export enum EventNames {
     CHECKOUT_FAILED = 'cart:checkout-failed'
 }
 
-/**
- * Описание элемента корзины.
- * todo зачем это здесь, если есть Worksheet
- */
-export type CartItem = {
-    worksheetId: number;
-    name: string;
-    priceKopecks: number;
-};
 
 /**
  * Абстрактный базовый класс для деталей событий.
- * Каждая конкретная деталь должна передавать соответствующее значение EventNames.
+ * Каждая конкретная деталь должна передавать соответствующее значение EventName.
  *
  * Экземпляры подклассов передаются в CustomEvent.detail и эмитятся через EventBus.
  */
 export abstract class EventDetail {
-    public readonly event: EventNames;
+    public readonly event: EventName;
 
-    protected constructor(event: EventNames) {
+    protected constructor(event: EventName) {
         this.event = event;
     }
 

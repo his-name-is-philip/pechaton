@@ -5613,11 +5613,7 @@ body.-dark .o-header__logoMobile .a-svg {
     }
 }
 /*================ Catalog ================*/
-/* todo */
-
-
 /* Scoped styles for #catalog-grid block in resources.html */
-/* Only conflicting selectors are scoped to avoid affecting other parts of the site */
 
 /* CSS Variables */
 #catalog-grid {
