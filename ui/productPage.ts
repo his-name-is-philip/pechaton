@@ -3,7 +3,7 @@
 import catalogService from '../services/catalogService';
 import cartController from '../services/cartController';
 import { Worksheet, formatPrice } from '../entities/worksheet';
-import { setAddedState, flashElement } from './productCard';
+import { setAddedState, flashElement, setDefaultState } from './productCard';
 import { btnHasAddedState, handleAddToCartError, handleAlreadyAddedClick } from './cartEvents';
 
 /**
@@ -138,6 +138,7 @@ export async function initProductPage(container: ParentNode): Promise<void> {
         }
     }
 
+    //todo а эта кнопка есть? создай
     // 5) Bind "Материалы" back button: prefer element with class .js-back-to-resources or data-back-button
     const backBtn =
         (document.querySelector('.js-back-to-resources') as HTMLElement | null) ||
@@ -164,8 +165,11 @@ export async function initProductPage(container: ParentNode): Promise<void> {
         // Set initial state based on cart
         if (cartController.has(worksheet.id)) {
             setAddedState(addBtn);
+        } else {
+            setDefaultState(addBtn);
         }
 
+        //todo слушателю тут не место, объедини или просто вынеси отдельной функцией
         addBtn.addEventListener('click', async (ev) => {
             ev.preventDefault();
             ev.stopPropagation();
@@ -206,7 +210,7 @@ function showNotFound(container: ParentNode): void {
     const root = (container ?? document) as ParentNode;
     const holder = document.createElement('div');
     holder.className = 'product-not-found';
-    holder.innerHTML = '<p>Товар не найден. Вернитесь назад.</p>';
+    holder.innerHTML = '<p>Рабочий лист не найден. Вернитесь назад.</p>';
     root.appendChild(holder);
     // Optionally go back after a few seconds:
     setTimeout(() => {

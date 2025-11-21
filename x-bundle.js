@@ -8580,6 +8580,8 @@ async function initProductPage(container) {
   if (addBtn) {
     if (cartController_default.has(worksheet.id)) {
       setAddedState(addBtn);
+    } else {
+      setDefaultState(addBtn);
     }
     addBtn.addEventListener("click", async (ev) => {
       ev.preventDefault();
@@ -8604,7 +8606,7 @@ function showNotFound(container) {
   const root = container ?? document;
   const holder = document.createElement("div");
   holder.className = "product-not-found";
-  holder.innerHTML = "<p>\u0422\u043E\u0432\u0430\u0440 \u043D\u0435 \u043D\u0430\u0439\u0434\u0435\u043D. \u0412\u0435\u0440\u043D\u0438\u0442\u0435\u0441\u044C \u043D\u0430\u0437\u0430\u0434.</p>";
+  holder.innerHTML = "<p>\u0420\u0430\u0431\u043E\u0447\u0438\u0439 \u043B\u0438\u0441\u0442 \u043D\u0435 \u043D\u0430\u0439\u0434\u0435\u043D. \u0412\u0435\u0440\u043D\u0438\u0442\u0435\u0441\u044C \u043D\u0430\u0437\u0430\u0434.</p>";
   root.appendChild(holder);
   setTimeout(() => {
     if (window.history.length > 1)
