@@ -25,15 +25,11 @@ class CartController {
      */
     private initFromStorage(): void {
         const snap = storageAdapter.get<CartSnapshot>(CART_KEY);
-        let items: CartItem[] | null = null;
         if (snap) {
             this.model.loadSnapshot(snap);
-            items = snap.items;
-        } else {
-            items = this.model.getItems();
         }
-        // Emit strongly-typed event with a class instance
-        EventBus.emit(new CartUpdatedDetail(items, items.length > 0));
+        const items = this.model.getItems();
+        EventBus.emit(new CartUpdatedDetail(items, false));
     }
 
     /**
