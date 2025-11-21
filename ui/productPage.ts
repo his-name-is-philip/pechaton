@@ -3,6 +3,8 @@
 import catalogService from '../services/catalogService';
 import cartController from '../services/cartController';
 import { Worksheet, formatPrice } from '../entities/worksheet';
+import { setAddedState, flashElement } from './productCard';
+import { btnHasAddedState, handleAddToCartError, handleAlreadyAddedClick } from './cartEvents';
 
 /**
  * Parse numeric id from current location search 'id' parameter.
@@ -159,25 +161,33 @@ export async function initProductPage(container: ParentNode): Promise<void> {
     // 6) Bind add-to-cart inside product page if present (element with .js-add-to-cart)
     const addBtn = container.querySelector('.js-add-to-cart') as HTMLElement | null;
     if (addBtn) {
+        // Set initial state based on cart
+        if (cartController.has(worksheet.id)) {
+            setAddedState(addBtn);
+        }
+
         addBtn.addEventListener('click', async (ev) => {
             ev.preventDefault();
+            ev.stopPropagation();
+
+            // If already added, simply flash and return
+            if (btnHasAddedState(addBtn)) {
+                handleAlreadyAddedClick(addBtn);
+                return;
+            }
+
             try {
                 const added = cartController.addFromWorksheet(worksheet as Worksheet);
-                if (added) {
-                    // reflect state on button (simple)
-                    addBtn.textContent = 'Добавлено';
-                    addBtn.classList.remove('-secondary');
-                    addBtn.classList.add('-tertiary');
-                    addBtn.setAttribute('aria-disabled', 'true');
-                } else {
+                // Always sync visual state with cart contents, regardless of return value.
+                // If the item was already in the cart (added === false), we still want the
+                // button to reflect the "added" state, then provide a small flash feedback.
+                setAddedState(addBtn);
+                if (!added) {
                     // already present - flash briefly
-                    try {
-                        addBtn.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.04)' }, { transform: 'scale(1)' }], { duration: 200 });
-                    } catch { }
+                    flashElement(addBtn);
                 }
             } catch (err) {
-                console.error('productPage: add to cart failed', err);
-                alert('Не удалось добавить товар в корзину');
+                handleAddToCartError(addBtn, err);
             }
         });
     }

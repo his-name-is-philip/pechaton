@@ -1,7 +1,6 @@
 // src/services/catalogService.ts
 import { Worksheet, parseRawWorksheet } from '../entities/worksheet';
 import { appendProductCardTo } from '../ui/productCard';
-import { rebindPage } from '../adapters/barbaAdapter';
 
 const CATALOG_URL = 'assets/goods.json';
 
@@ -69,7 +68,7 @@ export class CatalogService {
      *
      * - This method fetches items (using the internal cache) and programmatically
      *   creates product card nodes via appendProductCardTo (from ui/productCard).
-     * - After appending cards, it calls rebindPage(rowElement) to attach click handlers.
+     * - Each card is created with its click handlers already attached.
      *
      * @param container - optional ParentNode or CSS selector string for the row container.
      *                    If omitted, uses '#catalog-grid .row' or '#catalog-grid' as fallback.
@@ -132,14 +131,6 @@ export class CatalogService {
             // append cards
             for (const ws of items) {
                 appendProductCardTo(ws, appendTarget);
-            }
-
-            // rebind add-to-cart buttons within the appended block
-            try {
-                rebindPage(appendTarget);
-            } catch (err) {
-                // eslint-disable-next-line no-console
-                console.warn('catalogService: rebindPage failed', err);
             }
 
             return items;

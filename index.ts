@@ -1,7 +1,6 @@
 // src/index.ts
 /// <reference path="./assets/barba-shim.d.ts" />
 /// <reference path="./assets/anime-shim.d.ts" />
-import { rebindPage } from './adapters/barbaAdapter';
 // Side-effect import to include the site runtime (animations, modules) inside the bundle
 import './assets/site.Dca_zzip.js';
 // Import Barba transitions and views configuration (init function)
@@ -37,9 +36,6 @@ function init(): void {
     // Cart overlay is controlled via hash routing and direct API calls.
 
     registerCartEvents();
-
-    // Initial DOM binding for add-to-cart buttons (existing DOM)
-    // rebindPage(document);
 
     // If current page contains the catalog grid, render catalog programmatically.
     // This ensures resources.html gets populated on initial load (non-Barba navigation).

@@ -7461,6 +7461,13 @@ function formatPrice(kopecks) {
   const kope = Math.abs(kopecks % 100);
   return `${new Intl.NumberFormat("ru-RU").format(rub)},${kope.toString().padStart(2, "0")} \u20BD`;
 }
+function worksheetToCartItem(worksheet) {
+  return {
+    worksheetId: worksheet.id,
+    name: worksheet.name,
+    priceKopecks: worksheet.priceKopecks
+  };
+}
 
 // entities/cartModel.ts
 var CartModel = class {
@@ -7827,16 +7834,11 @@ var CartController = class {
    * @param ws - object with id, name and priceKopecks properties.
    */
   addFromWorksheet(ws2) {
-    const success = this.model.add({
-      worksheetId: ws2.id,
-      name: ws2.name,
-      priceKopecks: ws2.priceKopecks
-    });
+    const success = this.model.add(worksheetToCartItem(ws2));
     if (success) {
       this.persist();
       EventBus.emit(new CartUpdatedDetail(this.model.getItems(), true));
-    }
-    if (!success) {
+    } else {
       console.log("addFromWorksheet: item already existed in cart");
     }
     return success;
@@ -7852,8 +7854,7 @@ var CartController = class {
     if (success) {
       this.persist();
       EventBus.emit(new CartUpdatedDetail(this.model.getItems(), false));
-    }
-    if (!success) {
+    } else {
       console.log("removeFromWorksheet: item not found in cart");
     }
     return success;
@@ -8297,6 +8298,7 @@ function createProductCard(ws2) {
   img.src = ws2.previewUrl;
   console.log("productCard: img.src:", img.src);
   img.alt = ws2.name;
+  img.loading = "lazy";
   const body = document.createElement("div");
   body.className = "card-body p-4";
   const bodyInner = document.createElement("div");
@@ -8365,48 +8367,6 @@ function appendProductCardTo(ws2, container) {
   container.appendChild(card);
 }
 
-// adapters/barbaAdapter.ts
-function rebindPage(container) {
-  console.log("barbaAdapter: rebindPage");
-  const root = container ?? document;
-  const addButtons = Array.from(root.querySelectorAll(".js-add-to-cart"));
-  addButtons.forEach((btn) => {
-    if (btn.__add_to_cart_bound)
-      return;
-    btn.addEventListener("click", async (ev) => {
-      ev.preventDefault();
-      const idAttr = btn.getAttribute("data-id");
-      if (!idAttr) {
-        console.warn("add-to-cart clicked without data-id");
-        return;
-      }
-      const id = Number(idAttr);
-      if (!Number.isInteger(id) || id <= 0) {
-        console.warn("invalid product id", idAttr);
-        return;
-      }
-      const exists = cartController_default.getItems().some((i) => i.worksheetId === id);
-      if (exists) {
-        btn.animate([{ transform: "scale(1)" }, { transform: "scale(1.04)" }, { transform: "scale(1)" }], { duration: 220 });
-        return;
-      }
-      try {
-        const ws2 = await catalogService_default.getById(id);
-        if (!ws2) {
-          alert("\u0422\u043E\u0432\u0430\u0440 \u043D\u0435 \u043D\u0430\u0439\u0434\u0435\u043D.");
-          return;
-        }
-        cartController_default.addFromWorksheet(ws2);
-        openCartModal();
-      } catch (err) {
-        console.error("add-to-cart error", err);
-        alert("\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u0434\u043E\u0431\u0430\u0432\u0438\u0442\u044C \u0432 \u043A\u043E\u0440\u0437\u0438\u043D\u0443");
-      }
-    });
-    btn.__add_to_cart_bound = true;
-  });
-}
-
 // services/catalogService.ts
 var CATALOG_URL = "assets/goods.json";
 var CatalogService = class {
@@ -8472,7 +8432,7 @@ var CatalogService = class {
    *
    * - This method fetches items (using the internal cache) and programmatically
    *   creates product card nodes via appendProductCardTo (from ui/productCard).
-   * - After appending cards, it calls rebindPage(rowElement) to attach click handlers.
+   * - Each card is created with its click handlers already attached.
    *
    * @param container - optional ParentNode or CSS selector string for the row container.
    *                    If omitted, uses '#catalog-grid .row' or '#catalog-grid' as fallback.
@@ -8512,11 +8472,6 @@ var CatalogService = class {
       console.log("catalogService: appendTarget children count:", appendTarget.childElementCount);
       for (const ws2 of items) {
         appendProductCardTo(ws2, appendTarget);
-      }
-      try {
-        rebindPage(appendTarget);
-      } catch (err) {
-        console.warn("catalogService: rebindPage failed", err);
       }
       return items;
     } catch (err) {
@@ -8623,24 +8578,24 @@ async function initProductPage(container) {
   }
   const addBtn = container.querySelector(".js-add-to-cart");
   if (addBtn) {
+    if (cartController_default.has(worksheet.id)) {
+      setAddedState(addBtn);
+    }
     addBtn.addEventListener("click", async (ev) => {
       ev.preventDefault();
+      ev.stopPropagation();
+      if (btnHasAddedState(addBtn)) {
+        handleAlreadyAddedClick(addBtn);
+        return;
+      }
       try {
         const added = cartController_default.addFromWorksheet(worksheet);
-        if (added) {
-          addBtn.textContent = "\u0414\u043E\u0431\u0430\u0432\u043B\u0435\u043D\u043E";
-          addBtn.classList.remove("-secondary");
-          addBtn.classList.add("-tertiary");
-          addBtn.setAttribute("aria-disabled", "true");
-        } else {
-          try {
-            addBtn.animate([{ transform: "scale(1)" }, { transform: "scale(1.04)" }, { transform: "scale(1)" }], { duration: 200 });
-          } catch {
-          }
+        setAddedState(addBtn);
+        if (!added) {
+          flashElement(addBtn);
         }
       } catch (err) {
-        console.error("productPage: add to cart failed", err);
-        alert("\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u0434\u043E\u0431\u0430\u0432\u0438\u0442\u044C \u0442\u043E\u0432\u0430\u0440 \u0432 \u043A\u043E\u0440\u0437\u0438\u043D\u0443");
+        handleAddToCartError(addBtn, err);
       }
     });
   }

@@ -35,7 +35,7 @@ export function registerCatalogRenderer(): void {
                 const target: ParentNode = grid ?? (el as ParentNode);
 
                 // Render the catalog into the found target.
-                // catalogService.renderCatalog will append product cards and call rebindPage internally.
+                // catalogService.renderCatalog will append product cards with handlers already attached.
                 await catalogService.renderCatalog(target);
             } catch (err) {
                 // eslint-disable-next-line no-console
